@@ -1,20 +1,16 @@
 <template>
     <section id="server-dashboard"
         class="relative min-h-screen flex items-center justify-center text-white px-4 overflow-y-auto py-12 md:py-20 selection:bg-emerald-500/30">
-        <!-- 动态背景壁纸（保留第一版的视觉冲击力） -->
         <NuxtImg src="/photo/wallpaper/91fd2fe5-b82b-4f16-b65f-76f124383c12.jpg" alt="服务器背景墙纸"
             class="absolute inset-0 w-full h-full object-cover fixed" preload />
-        <!-- 沉浸式渐变层遮罩 -->
         <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/75 to-black/55 backdrop-blur-[2px]"></div>
 
         <div class="relative z-10 flex flex-col items-center justify-center max-w-5xl w-full gap-8 px-4 md:px-6">
 
-            <!-- 头部区域：服务器 Logo + 名字 + 核心快捷面板 -->
             <header
                 class="flex flex-col min-[928px]:flex-row items-center justify-between gap-8 w-full bg-black/40 backdrop-blur-xl border border-white/10 p-6 md:p-8 rounded-3xl shadow-2xl">
                 <div
                     class="flex flex-col min-[928px]:flex-row items-center gap-6 text-center min-[928px]:text-left w-full min-[928px]:w-auto">
-                    <!-- 服务器图标（支持动态获取或本地兜底） -->
                     <div class="shrink-0 flex-none relative group">
                         <NuxtImg v-if="status?.icon" :src="status.icon" alt="Server Icon"
                             class="w-28 h-28 rounded-2xl shadow-xl transition-transform duration-300 group-hover:scale-105 border border-white/10 object-cover" />
@@ -26,7 +22,6 @@
                         <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight drop-shadow-lg text-white">
                             {{ siteConfig.SITE_NAME }}
                         </h1>
-                        <!-- 地址复制卡片 -->
                         <div
                             class="bg-black/40 border border-white/10 rounded-xl p-3 flex items-center justify-between gap-4 min-w-[280px] break-all leading-snug">
                             <div class="text-left flex-1">
@@ -43,7 +38,6 @@
                     </div>
                 </div>
 
-                <!-- 右侧在线状态与手动刷新 -->
                 <div
                     class="bg-black/40 border border-white/10 pl-5 pr-3 py-3 rounded-xl flex items-center justify-between gap-6 min-w-[220px] max-w-full">
                     <div class="flex items-center gap-3">
@@ -70,9 +64,8 @@
                 </div>
             </header>
 
-            <!-- 核心指标与宣言区 -->
+            <!-- 核心数据 -->
             <section class="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
-                <!-- 玩家人数 -->
                 <div
                     class="bg-black/40 backdrop-blur-xl border border-white/10 p-4 rounded-2xl flex items-center gap-4 shadow-xl">
                     <div
@@ -119,7 +112,6 @@
                 </div>
             </section>
 
-            <!-- 在线玩家细化面板 -->
             <section
                 class="bg-black/40 backdrop-blur-xl border border-white/10 rounded-3xl p-6 flex flex-col w-full min-h-[280px] shadow-2xl">
                 <div
@@ -136,7 +128,6 @@
 
                 <!-- 滚动列表 -->
                 <div class="flex-1 overflow-y-auto max-h-[340px] pr-1 custom-scrollbar">
-                    <!-- 加载骨架屏 -->
                     <template v-if="loading">
                         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                             <div v-for="i in 6" :key="i"
@@ -228,8 +219,7 @@ const fetchServerStatus = async () => {
 
 onMounted(() => {
     fetchServerStatus()
-    // 每3分钟静默刷新一次
-    setInterval(fetchServerStatus, 180000)
+    setInterval(fetchServerStatus, 60000)  // 1min
 })
 
 const lastUpdatedText = computed(() => {
@@ -272,7 +262,6 @@ const copyIp = async () => {
 </script>
 
 <style scoped>
-/* 隐藏底层滚动条，替换为更细腻的现代毛玻璃滚动槽 */
 .custom-scrollbar::-webkit-scrollbar {
     width: 4px;
 }

@@ -17,18 +17,20 @@
                     {{ siteConfig.SITE_NAME }}
                 </h1>
 
-                <div
-                    class="mt-8 flex flex-col lg:flex-row items-stretch lg:items-start gap-4 w-full lg:w-auto">
+                <div class="mt-8 flex flex-col lg:flex-row items-stretch lg:items-start gap-4 w-full lg:w-auto">
                     <div
                         class="bg-black/50 backdrop-blur-lg border border-white/10 rounded-2xl p-4 flex items-center justify-between gap-6 min-w-[300px] break-all leading-snug">
                         <div class="text-left flex-1">
                             <p class="text-xs text-gray-400 font-semibold uppercase tracking-wider">服务器地址</p>
-                            <p class="text-sm font-mono text-gray-100 mt-1 select-all overflow-auto break-all h-[3ch]">{{ siteConfig.MC_SERVER_IP }}:{{ siteConfig.MC_SERVER_PORT }}
+                            <p class="text-sm font-mono text-gray-100 mt-1 select-all overflow-auto break-all h-[3ch]">
+                                {{ siteConfig.MC_SERVER_IP }}:{{
+                                    siteConfig.MC_SERVER_PORT }}
                             </p>
                         </div>
                         <button @click="copyIp"
                             class="shrink-0 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-xs font-bold px-4 py-2.5 rounded-xl transition-all duration-200 flex items-center gap-1.5 shadow-lg shadow-emerald-950/40">
-                            <span>{{ copied ? '已复制' : '复制地址' }}</span>
+                            <i :class="copied ? 'fa-solid fa-check' : 'fa-regular fa-copy'"></i>
+                            <span>{{ copied ? '已复制' : '复制' }}</span>
                         </button>
                     </div>
 
