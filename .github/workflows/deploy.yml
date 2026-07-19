@@ -32,8 +32,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-nuxt-
 
-      - run: npm ci
-
       - name: Copy CNAME if exists
         run: |
           if [ -f CNAME ]; then
