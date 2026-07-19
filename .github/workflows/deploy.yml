@@ -32,13 +32,21 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-nuxt-
 
+      - name: Install dependencies
+        run: |
+          if [ ! -f package-lock.json ]; then
+            npm install --package-lock-only
+          fi
+          npm ci || npm install
+
       - name: Copy CNAME if exists
         run: |
           if [ -f CNAME ]; then
             cp CNAME ./public/CNAME
           fi
 
-      - run: npx nuxt generate
+      - name: Generate
+        run: npx nuxt generate
 
       - name: Deploy to gh-pages
         uses: peaceiris/actions-gh-pages@v4
@@ -46,5 +54,5 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
           publish_dir: ./.output/public
-          force_orphan: true
+          force-orphan: true
           enable_jekyll: false
