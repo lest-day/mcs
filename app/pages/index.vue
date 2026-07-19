@@ -23,7 +23,7 @@
                         class="bg-black/50 backdrop-blur-lg border border-white/10 rounded-2xl p-4 flex items-center justify-between gap-6 min-w-[300px] break-all leading-snug">
                         <div class="text-left flex-1">
                             <p class="text-xs text-gray-400 font-semibold uppercase tracking-wider">服务器地址</p>
-                            <p class="text-sm font-mono text-gray-100 mt-1 select-all">{{ siteConfig.MC_SERVER_IP }}:{{ siteConfig.MC_SERVER_PORT }}
+                            <p class="text-sm font-mono text-gray-100 mt-1 select-all overflow-auto break-all h-[3ch]">{{ siteConfig.MC_SERVER_IP }}:{{ siteConfig.MC_SERVER_PORT }}
                             </p>
                         </div>
                         <button @click="copyIp"
