@@ -16,32 +16,46 @@ jobs:
       cancel-in-progress: true
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-node@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: 'npm'
-
-      - uses: actions/cache@v4
+          
+      - name: Cache Nuxt build
+        uses: actions/cache@v4
         with:
-          path: |
-            .nuxt
-            .output
+          path: .nuxt
           key: ${{ runner.os }}-nuxt-${{ hashFiles('package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-nuxt-
 
-      - run: npm ci
+      - name: Install dependencies
+        run: npm ci
 
-      - name: Copy CNAME from repository root
+      - name: Copy CNAME if exists
         run: |
-          cp CNAME ./public/CNAME
-          echo "[√] CNAME copied"
+          if [ -f CNAME ]; then
+            cp CNAME ./public/CNAME
+            echo "[√] CNAME copied"
+          else
+            echo "[!] No CNAME found, skipping"
+          fi
 
-      - run: npx nuxt generate
+      - name: Generate static site
+        run: npx nuxt generate
+        env:
+          NODE_ENV: production
+
+      - name: Verify build output
+        run: |
+          ls -la .output/public
+          test -f .output/public/index.html
 
       - name: Deploy to gh-pages
         uses: peaceiris/actions-gh-pages@v4
