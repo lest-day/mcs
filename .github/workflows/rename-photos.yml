@@ -1,0 +1,92 @@
+name: Rename New Photos to UUID
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'public/photo/**'
+
+permissions:
+  contents: write
+
+jobs:
+  rename-photos:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Rename new images to UUID
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+
+          # 递归匹配 public/photo 下所有新增文件
+          mapfile -t NEW_FILES < <(
+            git diff --name-only --diff-filter=A HEAD~1 HEAD -- 'public/photo/**'
+          )
+
+          # 判断是否为 UUID v4 文件名
+          is_uuid() {
+            local name="$1"
+            local base="${name%.*}"
+            [[ "$base" =~ ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$ ]]
+          }
+
+          # 支持的图片扩展名
+          is_image() {
+            local ext="$1"
+            case "$ext" in
+              jpg|jpeg|png|gif|webp|bmp|svg|avif)
+                return 0
+                ;;
+              *)
+                return 1
+                ;;
+            esac
+          }
+
+          for file in "${NEW_FILES[@]}"; do
+            filename="$(basename "$file")"
+            ext="${file##*.}"
+            ext_lower="$(tr '[:upper:]' '[:lower:]' <<< "$ext")"
+
+            # 非图片直接跳过
+            if ! is_image "$ext_lower"; then
+              echo "Skip non-image file: $file"
+              continue
+            fi
+
+            # 已是 UUID 跳过
+            if is_uuid "$filename"; then
+              echo "Skip already UUID-named file: $file"
+              continue
+            fi
+
+            dir="$(dirname "$file")"
+            uuid="$(uuidgen | tr '[:upper:]' '[:lower:]')"
+            new_path="$dir/$uuid.$ext_lower"
+
+            # UUID 冲突防护
+            if [[ -e "$new_path" ]]; then
+              echo "UUID conflict, retrying: $new_path"
+              continue
+            fi
+
+            git mv "$file" "$new_path"
+            echo "Renamed: $file -> $new_path"
+          done
+
+      - name: Commit and push
+        run: |
+          if [[ -n "$(git status --porcelain)" ]]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git commit -m "chore: rename new photos to UUID [skip ci]"
+            git push
+          else
+            echo "No new images to rename."
+          fi

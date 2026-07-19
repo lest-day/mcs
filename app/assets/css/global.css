@@ -1,0 +1,6 @@
+@import "tailwindcss";
+
+html {
+    background: black;
+    font-family: HarmonyOS_Sans_SC_Medium;
+}
