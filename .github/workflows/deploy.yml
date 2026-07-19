@@ -25,21 +25,22 @@ jobs:
           node-version: '22'
           cache: 'npm'
 
+      # ✅ 只缓存 .nuxt，不要缓存 .output
       - uses: actions/cache@v4
         with:
-          path: |
-            .nuxt
-            .output
+          path: .nuxt
           key: ${{ runner.os }}-nuxt-${{ hashFiles('package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-nuxt-
 
+      # ✅ 这里必须是 npm ci
       - run: npm ci
 
-      - name: Copy CNAME from repository root
+      - name: Copy CNAME if exists
         run: |
-          cp CNAME ./public/CNAME
-          echo "[√] CNAME copied"
+          if [ -f CNAME ]; then
+            cp CNAME ./public/CNAME
+          fi
 
       - run: npx nuxt generate
 
