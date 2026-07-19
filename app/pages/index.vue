@@ -4,21 +4,21 @@
             class="absolute inset-0 w-full h-full object-cover" preload />
         <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-black/40"></div>
         <div
-            class="relative z-10 flex flex-col min-[928px]:flex-row items-center justify-center gap-10 max-w-7xl w-full px-6 py-20">
+            class="relative z-10 flex flex-col lg:flex-row items-center justify-center gap-10 max-w-7xl w-full px-6 py-20">
 
             <div class="shrink-0 flex-none">
                 <NuxtImg src="/logo_radius.png" alt="清花MC服务器图标"
-                    class="w-36 h-36 min-[928px]:w-44 min-[928px]:h-44 rounded-3xl shadow-2xl transition-transform duration-300 hover:scale-105" />
+                    class="w-36 h-36 lg:w-44 lg:h-44 rounded-3xl shadow-2xl transition-transform duration-300 hover:scale-105" />
             </div>
 
-            <div class="flex-1 text-center min-[928px]:text-left flex flex-col items-center min-[928px]:items-start">
+            <div class="flex-1 text-center lg:text-left flex flex-col items-center lg:items-start">
 
-                <h1 class="text-4xl min-[928px]:text-6xl font-extrabold tracking-tight drop-shadow-lg">
+                <h1 class="text-4xl lg:text-6xl font-extrabold tracking-tight drop-shadow-lg">
                     {{ siteConfig.SITE_NAME }}
                 </h1>
 
                 <div
-                    class="mt-8 flex flex-col min-[928px]:flex-row items-stretch min-[928px]:items-start gap-4 w-full min-[928px]:w-auto">
+                    class="mt-8 flex flex-col lg:flex-row items-stretch lg:items-start gap-4 w-full lg:w-auto">
                     <div
                         class="bg-black/50 backdrop-blur-lg border border-white/10 rounded-2xl p-4 flex items-center justify-between gap-6 min-w-[300px] break-all leading-snug">
                         <div class="text-left flex-1">
