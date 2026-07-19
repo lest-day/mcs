@@ -34,7 +34,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-nuxt-
 
-      - run: npm ci --no-optional
+      - run: npm install
 
       - name: Copy CNAME from repository root
         run: |
