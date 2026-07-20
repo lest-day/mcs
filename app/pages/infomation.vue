@@ -147,7 +147,7 @@
                                 <div class="flex items-center gap-3 min-w-0">
                                     <div
                                         class="shrink-0 w-8 h-8 rounded-lg overflow-hidden border border-white/10 flex items-center justify-center relative">
-                                        <img :src="`https://crafatar.com/avatars/${player.uuid || '8667ba71b85a4004af54457a9734eed7'}?size=32&default=MHF_Steve`"
+                                        <img :src="`https://api.mineatar.io/face//${player.uuid || '8667ba71b85a4004af54457a9734eed7'}?size=32&default=MHF_Steve`"
                                             alt="avatar" class="w-full h-full object-cover"
                                             @error="(e) => (e.target.style.display = 'none')" />
                                         <div :class="getAvatarBg(index)"
