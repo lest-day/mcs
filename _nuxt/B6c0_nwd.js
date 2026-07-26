@@ -1,0 +1,1 @@
+import{T as e,t,v as n}from"#entry";var r={};function i(t,r){return e(),n(`div`,null,`Coming soon`)}var a=t(r,[[`render`,i]]);export{a as default};
