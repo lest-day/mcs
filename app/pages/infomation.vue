@@ -33,7 +33,7 @@
             <div class="text-left">
               <p class="text-[11px] text-gray-400 font-bold uppercase tracking-wider">总在线</p>
               <p class="text-sm font-black font-mono text-gray-200">
-                {{ isInitialLoading ? '--' : `${totalOnlinePlayers} 人` }}
+                {{ isInitialLoading ? '--' : `${displayTotalOnline} 人` }}
               </p>
             </div>
           </div>
@@ -52,7 +52,7 @@
             class="w-10 h-10 rounded-xl bg-black/50 border border-white/10 flex items-center justify-center text-gray-300 hover:text-white hover:border-white/20 disabled:opacity-40 active:scale-95 transition-all shadow-sm shrink-0"
             title="刷新数据">
             <i
-              :class="loading ? 'fa-solid fa-spinner animate-spin text-gray-200 text-sm' : 'fa-solid fa-rotate text-sm'"></i>
+              :class="loading ? 'fa-solid fa-spinner animate-spin text-gray-200 text-sm' : justRefreshed ? 'fa-solid fa-check text-emerald-400 text-sm' : 'fa-solid fa-rotate text-sm'"></i>
           </button>
         </div>
       </header>
@@ -70,8 +70,17 @@
               class="text-base shrink-0"></i>
             <span class="font-bold text-base text-gray-100 truncate">{{ server.name }}</span>
           </div>
-          <span :class="server.tagClass"
-            class="text-xs font-bold px-2.5 py-0.5 rounded-full shrink-0 border border-white/5 ml-2">
+
+          <!-- ✅ Tag 激活态覆盖（你上一次要的） -->
+          <span
+            :class="[
+              server.tagClass,
+              'text-xs font-bold px-2.5 py-0.5 rounded-full shrink-0 border ml-2 transition-colors duration-300',
+              currentServerIndex === index
+                ? '!bg-emerald-500/15 !text-emerald-400 !border-emerald-500/50'
+                : ''
+            ]"
+          >
             {{ server.tag }}
           </span>
         </div>
@@ -112,7 +121,7 @@
               <i class="fa-solid fa-box-open text-orange-400 text-xs"></i>
               <span class="text-gray-400 text-xs uppercase font-bold">CORE</span>
               <span class="font-bold font-mono text-gray-200 text-xs truncate max-w-[120px]" :title="softwareName">
-                {{ currentServerState === SERVER_STATE.ONLINE ? softwareName : 'N/A' }}
+                {{ displayState === SERVER_STATE.ONLINE ? softwareName : 'N/A' }}
               </span>
             </div>
 
@@ -120,7 +129,7 @@
               <i class="fa-solid fa-code-branch text-blue-400 text-xs"></i>
               <span class="text-gray-400 text-xs uppercase font-bold">VERSION</span>
               <span class="font-bold font-mono text-gray-200 text-xs truncate max-w-[120px]" :title="versionName">
-                {{ currentServerState === SERVER_STATE.ONLINE ? versionName : 'N/A' }}
+                {{ displayState === SERVER_STATE.ONLINE ? versionName : 'N/A' }}
               </span>
             </div>
           </div>
@@ -146,7 +155,7 @@
 
           <div class="flex-1 overflow-y-auto max-h-[320px] pr-1 custom-scrollbar">
             <!-- Loading -->
-            <template v-if="currentServerState === SERVER_STATE.LOADING && !hasCachedPlayers">
+            <template v-if="displayState === SERVER_STATE.LOADING && !hasCachedPlayers">
               <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                 <div v-for="i in 6" :key="i"
                   class="flex items-center gap-3 p-3.5 bg-black/20 rounded-xl animate-pulse border border-white/5">
@@ -162,7 +171,6 @@
                 <div v-for="(player, index) in playersList" :key="getPlayerKey(player, index)"
                   class="flex items-center justify-between p-3 bg-black/30 border border-white/5 hover:border-emerald-500/40 rounded-xl shadow-sm hover:bg-black/50 transition-all duration-200 group">
                   <div class="flex items-center gap-3 min-w-0">
-                    <!-- ✅ 稳定版头像 -->
                     <div
                       class="avatar-container shrink-0 w-9 h-9 rounded-lg overflow-hidden border border-white/10 flex items-center justify-center relative bg-black/50">
                       <img
@@ -196,7 +204,7 @@
             <!-- 空状态 -->
             <template v-else>
               <div class="h-full flex flex-col items-center justify-center text-center text-gray-400 py-10">
-                <i class="fa-solid fa-ghost text-4xl mb-3 text-gray-600 animate-bounce"></i>
+                <i class="fa-solid fa-ghost text-4xl mb-3 text-gray-600 animate-pulse"></i>
                 <p class="text-xs md:text-sm tracking-wide">
                   {{ emptyTip }}
                 </p>
@@ -206,24 +214,15 @@
         </section>
       </main>
 
-      <!-- 页脚 -->
-      <footer class="relative z-10 text-center text-xs text-gray-500 mt-6 select-none">
-        © {{ siteConfig.SITE_SINCE }}
-        • {{ siteConfig.SITE_AUTHOR }}
-        •
-        <a :href="siteConfig.SITE_URL" target="_blank" class="hover:text-emerald-400 transition-colors">
-          官网
-        </a>
-      </footer>
     </div>
   </section>
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
+import { ref, reactive, computed, onMounted, onUnmounted, watch } from 'vue'
 import siteConfig from '@@/site.config'
 
-/* ===================== 常量 ===================== */
+/* =====================    常量    ===================== */
 const SERVER_STATE = {
   LOADING: 'LOADING',
   ONLINE: 'ONLINE',
@@ -235,11 +234,12 @@ const serverList = ref(siteConfig.MC_SERVERS)
 const currentServerIndex = ref(0)
 const currentServer = computed(() => serverList.value[currentServerIndex.value])
 
-/* ===================== 状态 ===================== */
-const serverStatuses = reactive({})
-const avatarErrorMap = reactive({})
+/* =====================    状态    ===================== */
+const serverStatuses = ref({})
+const avatarErrorMap = ref({})
 
 const loading = ref(true)
+const justRefreshed = ref(false)
 const hasLoadedOnce = ref(false)
 const copied = ref(false)
 const lastUpdated = ref(null)
@@ -256,7 +256,7 @@ const fullServerAddress = computed(() => {
 })
 
 const getServerState = (id) => {
-  const res = serverStatuses[id]
+  const res = serverStatuses.value[id]
   if (!res) {
     return isInitialLoading.value ? SERVER_STATE.LOADING : SERVER_STATE.OFFLINE
   }
@@ -272,18 +272,22 @@ const getServerState = (id) => {
 
 const currentServerState = computed(() => getServerState(currentServer.value.id))
 
+/* Tab 切换状态缓存 */
+const lastServerStateMap = reactive({})
+watch(currentServerState, (state) => {
+  lastServerStateMap[currentServer.value.id] = state
+})
+
+const displayState = computed(() =>
+  currentServerState.value === SERVER_STATE.LOADING
+    ? lastServerStateMap[currentServer.value.id] || SERVER_STATE.LOADING
+    : currentServerState.value
+)
+
 const getInfo = (id) => {
-  const res = serverStatuses[id]
+  const res = serverStatuses.value[id]
   return res?.info || res?.data || res || {}
 }
-
-const totalOnlinePlayers = computed(() =>
-  serverList.value.reduce((sum, s) => sum + (getInfo(s.id)?.players?.online || 0), 0)
-)
-
-const onlineServerCount = computed(() =>
-  serverList.value.filter(s => getServerState(s.id) === SERVER_STATE.ONLINE).length
-)
 
 const infoData = computed(() => getInfo(currentServer.value.id))
 
@@ -296,6 +300,27 @@ const playersList = computed(() => {
 })
 
 const hasCachedPlayers = computed(() => playersList.value.length > 0)
+
+/* 总在线 */
+const totalOnlinePlayers = computed(() =>
+  serverList.value.reduce((sum, s) => {
+    const info = getInfo(s.id)
+    return sum + (Number(info?.players?.online) || 0)
+  }, 0)
+)
+
+const lastTotalOnline = ref(0)
+watch(totalOnlinePlayers, v => {
+  if (v >= 0) lastTotalOnline.value = v
+})
+
+const displayTotalOnline = computed(() =>
+  isInitialLoading.value ? '--' : (totalOnlinePlayers.value ?? lastTotalOnline.value)
+)
+
+const onlineServerCount = computed(() =>
+  serverList.value.filter(s => getServerState(s.id) === SERVER_STATE.ONLINE).length
+)
 
 const fullVersionStr = computed(() => String(infoData.value?.version?.name || ''))
 
@@ -314,31 +339,31 @@ const versionName = computed(() => {
 
 /* ===================== 状态样式 ===================== */
 const statusPingColor = computed(() => ({
-  'bg-amber-400': currentServerState.value === SERVER_STATE.LOADING,
-  'bg-emerald-400': currentServerState.value === SERVER_STATE.ONLINE,
-  'bg-rose-400': currentServerState.value === SERVER_STATE.OFFLINE
+  'bg-amber-400': displayState.value === SERVER_STATE.LOADING,
+  'bg-emerald-400': displayState.value === SERVER_STATE.ONLINE,
+  'bg-rose-400': displayState.value === SERVER_STATE.OFFLINE
 }))
 
 const statusDotColor = computed(() => ({
-  'bg-amber-500': currentServerState.value === SERVER_STATE.LOADING,
-  'bg-emerald-500': currentServerState.value === SERVER_STATE.ONLINE,
-  'bg-rose-500': currentServerState.value === SERVER_STATE.OFFLINE
+  'bg-amber-500': displayState.value === SERVER_STATE.LOADING,
+  'bg-emerald-500': displayState.value === SERVER_STATE.ONLINE,
+  'bg-rose-500': displayState.value === SERVER_STATE.OFFLINE
 }))
 
 const statusTextColor = computed(() => ({
-  'text-amber-400': currentServerState.value === SERVER_STATE.LOADING,
-  'text-emerald-400': currentServerState.value === SERVER_STATE.ONLINE,
-  'text-rose-400': currentServerState.value === SERVER_STATE.OFFLINE
+  'text-amber-400': displayState.value === SERVER_STATE.LOADING,
+  'text-emerald-400': displayState.value === SERVER_STATE.ONLINE,
+  'text-rose-400': displayState.value === SERVER_STATE.OFFLINE
 }))
 
 const statusLabel = computed(() => ({
   [SERVER_STATE.LOADING]: 'CHECKING',
   [SERVER_STATE.ONLINE]: 'ONLINE',
   [SERVER_STATE.OFFLINE]: 'OFFLINE'
-})[currentServerState.value])
+})[displayState.value])
 
 const emptyTip = computed(() => {
-  if (currentServerState.value === SERVER_STATE.OFFLINE) return '服务器离线，无法获取玩家列表'
+  if (displayState.value === SERVER_STATE.OFFLINE) return '服务器离线，无法获取玩家列表'
   if (onlinePlayersCount.value === 0) return '当前世界空无一人，快来成为第一位访客吧'
   return ''
 })
@@ -366,14 +391,14 @@ const getPlayerKey = (player, index) =>
 
 const getAvatarUrl = (player) => {
   const uuid = getPlayerUuid(player)
-  const name = getPlayerName(player)
-  return uuid
-    ? `https://api.mineatar.io/face/${uuid}?size=36`
-    : `https://mc-heads.net/avatar/${encodeURIComponent(name)}/36`
+  if (uuid) {
+    return `https://crafatar.com/avatars/${uuid}?size=36&overlay`
+  }
+  return `https://mc-heads.net/avatar/${encodeURIComponent(getPlayerName(player))}/36`
 }
 
 const handleAvatarError = (key) => {
-  avatarErrorMap[key] = true
+  avatarErrorMap.value[key] = true
 }
 
 const getAvatarBg = (index) => {
@@ -399,24 +424,34 @@ const fetchAllServers = async () => {
     await Promise.all(
       serverList.value.map(async (server) => {
         try {
-          serverStatuses[server.id] = await $fetch(
+          serverStatuses.value[server.id] = await $fetch(
             `https://api.hanximeng.com/mc/?server_addr=${server.ip}&server_port=${server.port}`,
-            {
-              timeout: 8000,
-              server: false
-            }
+            { timeout: 8000, server: false }
           )
         } catch {
-          serverStatuses[server.id] = { online: false }
+          serverStatuses.value[server.id] = { online: false }
         }
       })
     )
     lastUpdated.value = new Date()
+    justRefreshed.value = true
+    setTimeout(() => (justRefreshed.value = false), 1200)
   } finally {
     loading.value = false
     hasLoadedOnce.value = true
   }
 }
+
+/* SSR 安全时间 */
+const lastUpdatedText = computed(() => {
+  if (!lastUpdated.value) return '00:00:00'
+  return new Intl.DateTimeFormat('zh-CN', {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false
+  }).format(lastUpdated.value)
+})
 
 /* ===================== 复制 IP ===================== */
 const copyIp = async () => {
@@ -438,19 +473,28 @@ const copyIp = async () => {
   } catch {}
 }
 
-const lastUpdatedText = computed(() =>
-  lastUpdated.value ? lastUpdated.value.toTimeString().split(' ')[0] : '00:00:00'
-)
-
 /* ===================== 生命周期 ===================== */
-onMounted(() => {
+const startPolling = () => {
   fetchAllServers()
   timer = setInterval(fetchAllServers, 60000)
+}
+
+const stopPolling = () => {
+  clearInterval(timer)
+}
+
+onMounted(() => {
+  fetchAllServers()
+  startPolling()
+  document.addEventListener('visibilitychange', () => {
+    document.hidden ? stopPolling() : startPolling()
+  })
 })
 
 onUnmounted(() => {
-  clearInterval(timer)
+  stopPolling()
   clearTimeout(copyTimer)
+  document.removeEventListener('visibilitychange', () => {})
 })
 </script>
 
@@ -472,7 +516,6 @@ onUnmounted(() => {
 .avatar-container {
   flex-shrink: 0;
 }
-
 .avatar-img {
   image-rendering: pixelated;
 }
