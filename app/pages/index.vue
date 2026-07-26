@@ -1,600 +1,259 @@
 <template>
-  <section id="server-dashboard"
-    class="relative min-h-screen flex items-center justify-center text-white px-4 overflow-y-auto py-8 md:py-16 selection:bg-emerald-500/30">
-    <!-- 背景图与遮罩 -->
-    <NuxtImg src="/photo/wallpaper/91fd2fe5-b82b-4f16-b65f-76f124383c12.jpg" alt="服务器背景墙纸"
-      class="absolute inset-0 w-full h-full object-cover select-none pointer-events-none" preload />
-    <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/80 to-black/60 backdrop-blur-[2px]"></div>
+  <section id="hero" class="relative min-h-screen flex items-center justify-center text-white px-4 overflow-hidden">
+    <NuxtImg src="/photo/wallpaper/18ba3525-9f0b-4e1c-baad-c01185236e38.jpg" alt="服务器背景墙纸"
+      class="absolute inset-0 w-full h-full object-cover" preload />
+    <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-black/40"></div>
 
-    <div class="relative z-10 flex flex-col items-center justify-center max-w-5xl w-full gap-5 px-2 md:px-6">
-      
-      <!-- 头部卡片 Header -->
-      <header
-        class="flex flex-col sm:flex-row items-center justify-between gap-4 w-full bg-black/40 backdrop-blur-xl border border-white/10 p-5 md:p-6 rounded-3xl shadow-2xl transition-all">
-        <div class="flex items-center gap-4 text-left w-full sm:w-auto">
-          <div class="shrink-0 relative group">
-            <NuxtImg src="/logo_radius.png" alt="服务器图标"
-              class="w-14 h-14 md:w-16 md:h-16 rounded-2xl shadow-xl transition-transform duration-300 group-hover:scale-105 border border-white/15 object-cover" />
-          </div>
-          <div class="flex flex-col gap-0.5 min-w-0">
-            <h1 class="text-2xl md:text-3xl font-black tracking-tight text-white drop-shadow truncate">
-              {{ siteConfig.SITE_NAME }}
-            </h1>
-            <p class="text-xs md:text-sm text-gray-300 font-medium truncate">
-              亲友生存，发展建造
-            </p>
-          </div>
-        </div>
+    <div class="relative z-10 flex flex-col lg:flex-row items-center justify-center gap-10 max-w-7xl w-full px-6 py-20">
+      <!-- 服务器 Icon -->
+      <div class="shrink-0 flex-none">
+        <NuxtImg src="/logo_radius.png" alt="清花MC服务器图标"
+          class="w-40 h-40 lg:w-44 lg:h-44 rounded-3xl shadow-2xl transition-transform duration-300 hover:scale-105 border border-white/10 object-cover" />
+      </div>
 
-        <div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
-          <!-- 在线人数 -->
-          <div class="bg-black/50 border border-white/10 px-3.5 py-2 md:px-4 md:py-2.5 rounded-xl flex items-center gap-3 flex-1 sm:flex-initial">
-            <i class="fa-solid fa-users text-emerald-400 text-sm"></i>
-            <div class="text-left">
-              <p class="text-[10px] md:text-[11px] text-gray-400 font-bold uppercase tracking-wider">
-                总在线
-              </p>
-              <p class="text-xs md:text-sm font-black font-mono text-gray-200">
-                {{ isInitialLoading ? "--" : `${displayTotalOnline} 人` }}
-              </p>
-            </div>
-          </div>
+      <div class="flex-1 text-center lg:text-left flex flex-col items-center lg:items-start">
+        <h1 class="text-4xl lg:text-5xl font-extrabold tracking-tight drop-shadow-lg">
+          {{ siteConfig.SITE_NAME }}
+        </h1>
 
-          <!-- 子服在线 -->
-          <div class="bg-black/50 border border-white/10 px-3.5 py-2 md:px-4 md:py-2.5 rounded-xl flex items-center gap-3 flex-1 sm:flex-initial">
-            <i class="fa-solid fa-server text-blue-400 text-sm"></i>
-            <div class="text-left">
-              <p class="text-[10px] md:text-[11px] text-gray-400 font-bold uppercase tracking-wider">
-                子服状态
-              </p>
-              <p class="text-xs md:text-sm font-black font-mono text-gray-200">
-                {{ isInitialLoading ? "--" : `${onlineServerCount} / ${serverList.length} 在线` }}
-              </p>
-            </div>
-          </div>
-
-          <!-- 刷新按钮 -->
-          <button @click="fetchAllServers" :disabled="loading"
-            class="w-10 h-10 rounded-xl bg-black/50 border border-white/10 flex items-center justify-center text-gray-300 hover:text-white hover:border-white/20 active:scale-95 disabled:opacity-40 transition-all shadow-sm shrink-0"
-            title="刷新数据">
-            <i :class="loading
-                ? 'fa-solid fa-spinner animate-spin text-gray-200 text-sm'
-                : justRefreshed
-                  ? 'fa-solid fa-check text-emerald-400 text-sm'
-                  : 'fa-solid fa-rotate text-sm'
-              "></i>
-          </button>
-        </div>
-      </header>
-
-      <!-- 子服切换选项卡 Tabs -->
-      <section class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5 w-full">
-        <div v-for="(server, index) in serverList" :key="server.id" @click="switchServer(index)" :class="[
-          'cursor-pointer relative overflow-hidden rounded-2xl p-4 border transition-all duration-300 backdrop-blur-xl flex items-center justify-between group select-none',
-          currentServerIndex === index
-            ? 'bg-black/70 border-emerald-500/80 shadow-lg shadow-emerald-950/50 ring-1 ring-emerald-500/50 scale-[1.01]'
-            : 'bg-black/30 border-white/10 hover:border-white/20 hover:bg-black/50'
-        ]">
-          <div class="flex items-center gap-2.5 min-w-0">
-            <i :class="[
-              server.icon || 'fa-solid fa-server',
-              currentServerIndex === index ? 'text-emerald-400' : 'text-gray-400 group-hover:text-gray-200',
-              'text-base shrink-0 transition-colors'
-            ]"></i>
-
-            <span :class="currentServerIndex === index
-                ? 'font-bold text-base truncate text-white'
-                : 'font-bold text-base truncate text-gray-400 group-hover:text-white'
-              ">
-              {{ server.name }}
-            </span>
-          </div>
-
-          <span :class="[
-            'text-xs font-bold px-2.5 py-0.5 rounded-full shrink-0 border ml-2 transition-colors duration-300',
-            server.tagBg || 'bg-white/10',
-            server.tagText || 'text-gray-300',
-            server.tagBorder || 'border-white/20'
-          ]">
-            {{ server.tag }}
-          </span>
-        </div>
-      </section>
-
-      <!-- 控制台面板 Main Area -->
-      <main class="flex flex-col gap-4 w-full">
-        <!-- IP 与状态栏 -->
-        <section
-          class="bg-black/40 backdrop-blur-xl border border-white/10 rounded-2xl p-4 md:p-5 flex flex-col md:flex-row items-center justify-between gap-4 shadow-xl">
-          <!-- 地址与复制按钮 -->
+        <div class="mt-8 flex flex-col lg:flex-row items-stretch lg:items-start gap-4 w-full lg:w-auto">
+          <!-- 主服地址 -->
           <div
-            class="flex items-center justify-between gap-3 w-full md:w-auto bg-black/50 border border-white/10 px-4 py-2.5 rounded-xl">
-            <div class="flex items-center gap-3 min-w-0">
-              <span class="flex h-2.5 w-2.5 relative shrink-0">
-                <span :class="statusPingColor"
-                  class="absolute inline-flex h-full w-full rounded-full opacity-75 animate-ping"></span>
-                <span :class="statusDotColor" class="relative inline-flex rounded-full h-2.5 w-2.5"></span>
-              </span>
-              <span class="text-sm font-mono text-emerald-300 font-bold select-all truncate">
-                {{ fullServerAddress }}
-              </span>
+            class="bg-black/50 backdrop-blur-lg border border-white/10 rounded-2xl p-4 flex items-center justify-between gap-6 min-w-[300px] break-all leading-snug">
+            <div class="text-left flex-1">
+              <p class="text-xs text-gray-400 font-semibold uppercase tracking-wider">
+                主服地址
+              </p>
+              <p class="text-sm font-mono text-gray-100 mt-1 select-all overflow-auto break-all h-[3ch]">
+                {{ mainServer.ip }}:{{ mainServer.port }}
+              </p>
             </div>
             <button @click="copyIp"
-              class="shrink-0 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white text-xs font-bold px-3.5 py-1.5 rounded-lg transition-all shadow-md shadow-emerald-950/40 flex items-center gap-1.5">
+              class="shrink-0 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-xs font-bold px-4 py-2.5 rounded-xl transition-all duration-200 flex items-center gap-1.5 shadow-lg shadow-emerald-950/40">
               <i :class="copied ? 'fa-solid fa-check' : 'fa-regular fa-copy'"></i>
-              <span>{{ copied ? "已复制" : "复制" }}</span>
+              <span>{{ copied ? '已复制' : '复制' }}</span>
             </button>
           </div>
 
-          <!-- 状态指标卡片 -->
-          <div class="flex items-center gap-2.5 w-full md:w-auto justify-between md:justify-end text-xs flex-wrap">
-            <div class="bg-black/30 border border-white/5 px-3.5 py-2 rounded-xl flex items-center gap-2 flex-1 md:flex-none justify-center">
-              <span class="text-gray-400 text-xs uppercase font-bold">STATUS</span>
-              <span class="font-bold font-mono text-xs" :class="statusTextColor">
-                {{ statusLabel }}
-              </span>
-            </div>
-
-            <div class="bg-black/30 border border-white/5 px-3.5 py-2 rounded-xl flex items-center gap-2 flex-1 md:flex-none justify-center">
-              <i class="fa-solid fa-box-open text-orange-400 text-xs"></i>
-              <span class="text-gray-400 text-xs uppercase font-bold">CORE</span>
-              <span class="font-bold font-mono text-gray-200 text-xs truncate max-w-[120px]" :title="softwareName">
-                {{ displayState === SERVER_STATE.ONLINE ? softwareName : "N/A" }}
-              </span>
-            </div>
-
-            <div class="bg-black/30 border border-white/5 px-3.5 py-2 rounded-xl flex items-center gap-2 flex-1 md:flex-none justify-center">
-              <i class="fa-solid fa-code-branch text-blue-400 text-xs"></i>
-              <span class="text-gray-400 text-xs uppercase font-bold">VERSION</span>
-              <span class="font-bold font-mono text-gray-200 text-xs truncate max-w-[120px]" :title="versionName">
-                {{ displayState === SERVER_STATE.ONLINE ? versionName : "N/A" }}
-              </span>
-            </div>
-          </div>
-        </section>
-
-        <!-- 在线玩家面板 -->
-        <section
-          class="bg-black/40 backdrop-blur-xl border border-white/10 rounded-3xl p-5 md:p-6 flex flex-col w-full min-h-[280px] shadow-2xl">
+          <!-- 全区在线 -->
           <div
-            class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 border-b border-white/5 pb-3.5">
-            <h2 class="text-xs md:text-sm font-bold uppercase tracking-wider text-gray-200 flex items-center gap-2">
-              <i class="fa-solid fa-circle-user text-emerald-400 text-sm"></i>
-              <span>
-                {{ currentServer?.name || '服务器' }}
-                在线玩家 ({{ onlinePlayersCount }} / {{ maxPlayersCount }})
-              </span>
-            </h2>
-            <div
-              class="font-mono text-xs text-gray-400 bg-black/40 px-3 py-1 rounded-md border border-white/5 self-start sm:self-auto">
-              同步时间: {{ lastUpdatedText }}
+            class="bg-black/50 backdrop-blur-lg border border-white/10 rounded-2xl p-4 flex items-center gap-4 min-w-[240px]">
+            <div class="relative flex h-3.5 w-3.5 ml-1">
+              <span :class="overallStatusClass.bgPing"
+                class="absolute inline-flex h-full w-full rounded-full opacity-75"></span>
+              <span :class="overallStatusClass.bgSolid"
+                class="relative inline-flex rounded-full h-3.5 w-3.5 border-2 border-white/10"></span>
+            </div>
+
+            <div class="text-left flex-1">
+              <p class="text-xs text-gray-400 font-semibold uppercase tracking-wider">
+                {{ loading ? '正在连接...' : '全区在线' }}
+              </p>
+              <div class="text-sm font-bold text-gray-100 mt-1">
+                <template v-if="loading">
+                  <span class="text-gray-400 font-normal text-xs animate-pulse">获取中...</span>
+                </template>
+                <template v-else>
+                  {{ totalOnline }}
+                  <span class="text-xs text-gray-400 font-normal">/ {{ totalMax }} 人</span>
+                </template>
+              </div>
+            </div>
+
+            <!-- 玩家头像预览 -->
+            <div v-if="!loading && mergedPlayers.length > 0" class="flex -space-x-3 overflow-hidden ml-auto">
+              <div v-for="(player, index) in mergedPlayers.slice(0, 3)" :key="player.name"
+                :class="getAvatarBg(index)"
+                class="relative inline-block h-8 w-8 rounded-full ring-2 ring-black/50 flex items-center justify-center text-[11px] font-sans font-black uppercase overflow-hidden shadow-inner shadow-black/20"
+                :title="player.name">
+                <span
+                  class="absolute inset-0 flex items-center justify-center text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)] select-none">
+                  {{ player.name?.[0] || '?' }}
+                </span>
+              </div>
+
+              <div v-if="totalOnline > 3"
+                class="shrink-0 flex items-center justify-center h-8 w-8 rounded-full ring-2 ring-black/50 bg-gray-800 text-[10px] text-gray-200 font-bold z-20 shadow-md select-none">
+                +{{ totalOnline - 3 }}
+              </div>
             </div>
           </div>
+        </div>
 
-          <div class="flex-1 overflow-y-auto max-h-[320px] pr-1 custom-scrollbar">
-            <!-- 加载占位 Skeleton -->
-            <template v-if="displayState === SERVER_STATE.LOADING && !hasCachedPlayers">
-              <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                <div v-for="i in 6" :key="i"
-                  class="flex items-center gap-3 p-3.5 bg-black/20 rounded-xl animate-pulse border border-white/5">
-                  <div class="w-9 h-9 bg-white/10 rounded-lg shrink-0"></div>
-                  <div class="h-4 bg-white/10 rounded w-24"></div>
-                </div>
-              </div>
-            </template>
-
-            <!-- 在线玩家列表 -->
-            <template v-else-if="playersList.length > 0">
-              <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 p-0.5">
-                <div v-for="(player, index) in playersList" :key="getPlayerKey(player, index)"
-                  class="flex items-center justify-between p-3 bg-black/30 border border-white/5 hover:border-emerald-500/40 rounded-xl shadow-sm hover:bg-black/50 transition-all duration-200 group">
-                  <div class="flex items-center gap-3 min-w-0">
-                    <div
-                      class="avatar-container shrink-0 w-9 h-9 rounded-lg overflow-hidden border border-white/10 flex items-center justify-center relative bg-black/50 shadow-inner">
-                      <img v-show="!avatarErrorMap[getPlayerKey(player, index)]" :src="getAvatarUrl(player)"
-                        :alt="getPlayerName(player)" class="avatar-img absolute inset-0 w-full h-full object-cover z-10 transition-transform duration-300 group-hover:scale-110"
-                        @error="handleAvatarError(getPlayerKey(player, index))" />
-                      <div v-show="avatarErrorMap[getPlayerKey(player, index)]" :class="getAvatarBg(index)"
-                        class="avatar-fallback absolute inset-0 z-20 flex items-center justify-center text-[11px] font-black uppercase text-white leading-none select-none">
-                        {{ getPlayerName(player)?.[0] || "?" }}
-                      </div>
-                    </div>
-
-                    <span
-                      class="font-mono text-xs md:text-sm text-gray-200 group-hover:text-emerald-400 transition-colors truncate">
-                      {{ getPlayerName(player) }}
-                    </span>
-                  </div>
-                  <span v-if="isStaff(getPlayerName(player))"
-                    class="text-xs font-medium tracking-tight px-2 py-0.5 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded select-none shrink-0 ml-2">
-                    管理
-                  </span>
-                </div>
-              </div>
-            </template>
-
-            <!-- 空状态 Tip -->
-            <template v-else>
-              <div class="h-full flex flex-col items-center justify-center text-center text-gray-400 py-10">
-                <i class="fa-solid fa-ghost text-4xl mb-3 text-gray-600 animate-pulse"></i>
-                <p class="text-xs md:text-sm tracking-wide">
-                  {{ emptyTip }}
-                </p>
-              </div>
-            </template>
+        <!-- 子服状态简述 -->
+        <div v-if="!loading" class="mt-4 flex flex-wrap gap-2 justify-center lg:justify-start">
+          <div v-for="s in serversStatus" :key="s.id" class="text-[11px] px-2 py-1 rounded-lg border"
+            :class="s.online ? 'border-emerald-500/30 text-emerald-300 bg-emerald-500/10' : 'border-rose-500/30 text-rose-300 bg-rose-500/10'">
+            <i :class="s.icon"></i> {{ s.shortname || s.name }}
+            {{ s.online ? `· ${s.onlineCount} 在线` : '· 离线' }}
           </div>
-        </section>
-      </main>
-    </div>
-
-    <!-- 强制指示 Tailwind 包含这套动态 Class，防止在 Cloudflare Pages 打包构建时被净化摇树（Purge）删掉 -->
-    <div class="hidden 
-      bg-emerald-500/20 text-emerald-300 border-emerald-500/30
-      bg-blue-500/20 text-blue-300 border-blue-500/30
-      bg-amber-500/20 text-amber-300 border-amber-500/30
-      bg-purple-500/20 text-purple-300 border-purple-500/30
-      bg-rose-500/20 text-rose-300 border-rose-500/30
-      bg-cyan-500/20 text-cyan-300 border-cyan-500/30">
+        </div>
+      </div>
     </div>
   </section>
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, onUnmounted, watch } from "vue";
-import siteConfig from "@@/site.config";
+import { ref, computed, onMounted } from 'vue'
+import siteConfig from '@@/site.config'
 
-/* ===================== 常量 ===================== */
-const SERVER_STATE = {
-  LOADING: "LOADING",
-  ONLINE: "ONLINE",
-  OFFLINE: "OFFLINE"
-};
+const servers = siteConfig.MC_SERVERS || []
 
-/* ===================== 服务器数据 ===================== */
-const serverList = ref(siteConfig.MC_SERVERS || []);
-const currentServerIndex = ref(0);
-const currentServer = computed(
-  () => serverList.value[currentServerIndex.value] || {}
-);
+const mainServer = computed(() => {
+  return (
+    servers.find(s => s.id === 'main') || {
+      ip: siteConfig.MC_SERVER_IP,
+      port: siteConfig.MC_SERVER_PORT
+    }
+  )
+})
 
-/* ===================== 状态 ===================== */
-const serverStatuses = ref({});
-const avatarErrorMap = ref({});
+const serversStatus = ref([])
+const loading = ref(true)
+const copied = ref(false)
 
-const loading = ref(true);
-const justRefreshed = ref(false);
-const hasLoadedOnce = ref(false);
-const copied = ref(false);
-const lastUpdated = ref(null);
+/** ✅ 主 API + uapis.cn 备用 */
+const fetchAllServers = async () => {
+  const primaryTpl = siteConfig.API_ENDPOINTS?.SERVER_STATUS
+  const backupTpl = 'https://uapis.cn/api/mcserver?server={ip}:{port}'
 
-let timer = null;
-let copyTimer = null;
+  const fetchWithFallback = async (s) => {
+    const buildPrimary = () =>
+      primaryTpl?.replace('{ip}', s.ip)?.replace('{port}', s.port)
 
-/* ===================== 计算属性 ===================== */
-const isInitialLoading = computed(
-  () => loading.value && !hasLoadedOnce.value
-);
+    const buildBackup = () =>
+      backupTpl.replace('{ip}', s.ip).replace('{port}', s.port)
 
-const fullServerAddress = computed(() => {
-  const s = currentServer.value;
-  if (!s.ip) return "127.0.0.1";
-  return !s.port || s.port === 25565 ? s.ip : `${s.ip}:${s.port}`;
-});
+    let info = null
+    let online = false
 
-const getServerState = (id) => {
-  const res = serverStatuses.value[id];
-  if (!res) {
-    return isInitialLoading.value
-      ? SERVER_STATE.LOADING
-      : SERVER_STATE.OFFLINE;
+    // 1️⃣ 主 API
+    if (primaryTpl) {
+      try {
+        info = await $fetch(buildPrimary(), { timeout: 8000 })
+        online = !!(
+          info?.status === 'success' ||
+          info?.status === true ||
+          info?.status === 200 ||
+          info?.online
+        )
+      } catch {
+        info = null
+      }
+    }
+
+    // 2️⃣ 备用 API
+    if (!online) {
+      try {
+        const res = await $fetch(buildBackup(), { timeout: 8000 })
+        if (res?.success === true || res?.online === true) {
+          online = true
+          info = {
+            players: {
+              online: res.players?.online ?? 0,
+              max: res.players?.max ?? 0,
+              sample: res.players?.list ?? []
+            }
+          }
+        }
+      } catch {
+        info = null
+      }
+    }
+
+    const players = info?.players?.sample || info?.players?.list || []
+
+    return {
+      id: s.id,
+      name: s.name,
+      shortname: s.shortname,
+      icon: s.icon,
+      online,
+      onlineCount: info?.players?.online ?? 0,
+      maxCount: info?.players?.max ?? 0,
+      players: players.map(p => ({
+        name: p.name || p.username || '未知玩家'
+      }))
+    }
   }
 
-  const online =
-    res.online === true ||
-    res.status === "success" ||
-    res.status === true ||
-    res.status === 200;
+  const results = await Promise.allSettled(servers.map(fetchWithFallback))
+  serversStatus.value = results.map(r => r.value)
+  loading.value = false
+}
 
-  return online ? SERVER_STATE.ONLINE : SERVER_STATE.OFFLINE;
-};
+onMounted(fetchAllServers)
 
-const currentServerState = computed(() =>
-  getServerState(currentServer.value.id)
-);
+/** 全区统计 */
+const totalOnline = computed(() =>
+  serversStatus.value.reduce((sum, s) => sum + s.onlineCount, 0)
+)
+const totalMax = computed(() =>
+  serversStatus.value.reduce((sum, s) => sum + s.maxCount, 0)
+)
 
-const lastServerStateMap = reactive({});
-watch(currentServerState, (state) => {
-  if (state !== SERVER_STATE.LOADING) {
-    lastServerStateMap[currentServer.value.id] = state;
-  }
-});
+/** 合并玩家（按 name 去重） */
+const mergedPlayers = computed(() =>
+  Array.from(
+    new Map(
+      serversStatus.value.flatMap(s => s.players.map(p => [p.name, p]))
+    ).values()
+  )
+)
 
-const displayState = computed(() =>
-  currentServerState.value === SERVER_STATE.LOADING
-    ? lastServerStateMap[currentServer.value.id] || SERVER_STATE.LOADING
-    : currentServerState.value
-);
-
-const getInfo = (id) => {
-  const res = serverStatuses.value[id];
-  return res?.info || res?.data || res || {};
-};
-
-const infoData = computed(() => getInfo(currentServer.value.id));
-
-const onlinePlayersCount = computed(
-  () => Number(infoData.value?.players?.online) || 0
-);
-const maxPlayersCount = computed(
-  () => Number(infoData.value?.players?.max) || 0
-);
-
-const playersList = computed(() => {
-  const list =
-    infoData.value?.players?.list ||
-    infoData.value?.players?.sample ||
-    [];
-  return Array.isArray(list) ? list : [];
-});
-
-const hasCachedPlayers = computed(() => playersList.value.length > 0);
-
-const totalOnlinePlayers = computed(() =>
-  serverList.value.reduce((sum, s) => {
-    const info = getInfo(s.id);
-    return sum + (Number(info?.players?.online) || 0);
-  }, 0)
-);
-
-const lastTotalOnline = ref(0);
-watch(totalOnlinePlayers, (v) => {
-  if (v >= 0) lastTotalOnline.value = v;
-});
-
-const displayTotalOnline = computed(() =>
-  isInitialLoading.value
-    ? "--"
-    : totalOnlinePlayers.value ?? lastTotalOnline.value
-);
-
-const onlineServerCount = computed(
-  () =>
-    serverList.value.filter(
-      (s) => getServerState(s.id) === SERVER_STATE.ONLINE
-    ).length
-);
-
-const fullVersionStr = computed(
-  () => String(infoData.value?.version?.name || "")
-);
-
-const softwareName = computed(() => {
-  const str = fullVersionStr.value.trim();
-  if (!str) return "Minecraft";
-  const m = str.match(/^([a-zA-Z][\w\-]*)/);
-  return m ? m[1] : "Minecraft";
-});
-
-const versionName = computed(() => {
-  const str = fullVersionStr.value.trim();
-  if (!str) return "1.21.x";
-  return str.replace(/^[^\d]*/, "").trim() || str;
-});
-
-/* ===================== 状态样式 ===================== */
-const statusPingColor = computed(() => ({
-  "bg-amber-400": displayState.value === SERVER_STATE.LOADING,
-  "bg-emerald-400": displayState.value === SERVER_STATE.ONLINE,
-  "bg-rose-400": displayState.value === SERVER_STATE.OFFLINE
-}));
-
-const statusDotColor = computed(() => ({
-  "bg-amber-500": displayState.value === SERVER_STATE.LOADING,
-  "bg-emerald-500": displayState.value === SERVER_STATE.ONLINE,
-  "bg-rose-500": displayState.value === SERVER_STATE.OFFLINE
-}));
-
-const statusTextColor = computed(() => ({
-  "text-amber-400": displayState.value === SERVER_STATE.LOADING,
-  "text-emerald-400": displayState.value === SERVER_STATE.ONLINE,
-  "text-rose-400": displayState.value === SERVER_STATE.OFFLINE
-}));
-
-const statusLabel = computed(
-  () =>
-    ({
-      [SERVER_STATE.LOADING]: "CHECKING",
-      [SERVER_STATE.ONLINE]: "ONLINE",
-      [SERVER_STATE.OFFLINE]: "OFFLINE"
-    })[displayState.value]
-);
-
-const emptyTip = computed(() => {
-  if (displayState.value === SERVER_STATE.OFFLINE)
-    return "服务器离线，无法获取玩家列表";
-  if (onlinePlayersCount.value === 0)
-    return "当前世界空无一人，快来成为第一位访客吧";
-  return "";
-});
-
-/* ===================== 工具方法 ===================== */
-const switchServer = (index) => {
-  currentServerIndex.value = index;
-};
-
-const isStaff = (name) =>
-  name &&
-  Array.isArray(siteConfig.MC_SERVER_STAFF) &&
-  siteConfig.MC_SERVER_STAFF.some(
-    (s) => s.toLowerCase() === name.toLowerCase()
-  );
-
-const getPlayerName = (p) =>
-  typeof p === "string" ? p : p?.name || p?.username || "未知玩家";
-
-const getPlayerUuid = (p) => {
-  const id = p?.uuid || p?.id;
-  return typeof id === "string" ? id.trim() : null;
-};
-
-const getPlayerKey = (player, index) => {
-  const uuid = getPlayerUuid(player);
-  if (uuid) return uuid;
-  return `${getPlayerName(player)}-${index}`;
-};
-
-/**
- * 优先从 siteConfig 读取头像 API 模板
- */
-const getAvatarUrl = (player) => {
-  const uuid = getPlayerUuid(player);
-  const name = getPlayerName(player);
-  const api = siteConfig.API_ENDPOINTS || {};
-
-  const cleanUuid = uuid ? uuid.replace(/-/g, "") : "";
-  if (cleanUuid.length === 32 && api.AVATAR_BY_UUID) {
-    return api.AVATAR_BY_UUID.replace("{uuid}", cleanUuid);
+/** 状态灯 */
+const overallStatusClass = computed(() => {
+  if (!serversStatus.value.length) {
+    return { bgPing: 'bg-amber-400 animate-ping', bgSolid: 'bg-amber-500' }
   }
 
-  if (api.AVATAR_BY_NAME) {
-    return api.AVATAR_BY_NAME.replace("{name}", encodeURIComponent(name));
+  const onlineCount = serversStatus.value.filter(s => s.online).length
+  const total = serversStatus.value.length
+
+  if (onlineCount === 0) {
+    return { bgPing: 'bg-rose-400 animate-ping', bgSolid: 'bg-rose-500' }
   }
+  if (onlineCount === total) {
+    return { bgPing: 'bg-emerald-400 animate-ping', bgSolid: 'bg-emerald-500' }
+  }
+  return { bgPing: 'bg-amber-400 animate-ping', bgSolid: 'bg-amber-500' }
+})
 
-  return `https://mc-heads.net/avatar/${encodeURIComponent(name)}/36`;
-};
-
-const handleAvatarError = (key) => {
-  avatarErrorMap.value[key] = true;
-};
-
+/** 头像配色 */
 const getAvatarBg = (index) => {
   const bgs = [
-    "bg-gradient-to-br from-emerald-600 to-teal-800",
-    "bg-gradient-to-br from-blue-600 to-indigo-800",
-    "bg-gradient-to-br from-amber-500 to-orange-700",
-    "bg-gradient-to-br from-purple-600 to-pink-700",
-    "bg-gradient-to-br from-rose-600 to-red-800",
-    "bg-gradient-to-br from-cyan-500 to-blue-700",
-    "bg-gradient-to-br from-fuchsia-600 to-purple-900",
-    "bg-gradient-to-br from-lime-500 to-emerald-700",
-    "bg-gradient-to-br from-sky-500 to-indigo-700",
-    "bg-gradient-to-br from-amber-600 to-yellow-800"
-  ];
-  return bgs[index % bgs.length];
-};
+    'bg-gradient-to-br from-emerald-600 to-teal-800',
+    'bg-gradient-to-br from-blue-600 to-indigo-800',
+    'bg-gradient-to-br from-amber-500 to-orange-700',
+    'bg-gradient-to-br from-purple-600 to-pink-700',
+    'bg-gradient-to-br from-rose-600 to-red-800',
+    'bg-gradient-to-br from-cyan-500 to-blue-700',
+    'bg-gradient-to-br from-fuchsia-600 to-purple-900',
+    'bg-gradient-to-br from-lime-500 to-emerald-700',
+    'bg-gradient-to-br from-sky-500 to-indigo-700',
+    'bg-gradient-to-br from-amber-600 to-yellow-800'
+  ]
+  return bgs[index % bgs.length]
+}
 
-/* ===================== 数据拉取 ===================== */
-const fetchAllServers = async () => {
-  loading.value = true;
-  const statusApiTpl = siteConfig.API_ENDPOINTS?.SERVER_STATUS;
-
-  if (!statusApiTpl) {
-    loading.value = false;
-    hasLoadedOnce.value = true;
-    return;
-  }
-
-  try {
-    const promises = serverList.value.map(async (server) => {
-      try {
-        const url = statusApiTpl
-          .replace("{ip}", server.ip)
-          .replace("{port}", server.port);
-
-        const res = await $fetch(url, { timeout: 8000 });
-        return { id: server.id, data: res };
-      } catch {
-        return { id: server.id, data: { online: false } };
-      }
-    });
-
-    const results = await Promise.allSettled(promises);
-    results.forEach((item) => {
-      if (item.status === "fulfilled") {
-        serverStatuses.value[item.value.id] = item.value.data;
-      }
-    });
-
-    lastUpdated.value = new Date();
-    justRefreshed.value = true;
-    setTimeout(() => (justRefreshed.value = false), 1200);
-  } finally {
-    loading.value = false;
-    hasLoadedOnce.value = true;
-  }
-};
-
-const lastUpdatedText = computed(() => {
-  if (!lastUpdated.value) return "00:00:00";
-  return new Intl.DateTimeFormat("zh-CN", {
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    hour12: false
-  }).format(lastUpdated.value);
-});
-
-/* ===================== 复制地址 ===================== */
+/** 复制 IP */
 const copyIp = async () => {
+  const full = `${mainServer.value.ip}:${mainServer.value.port}`
   try {
-    if (navigator.clipboard && window.isSecureContext) {
-      await navigator.clipboard.writeText(fullServerAddress.value);
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(full)
     } else {
-      const ta = document.createElement("textarea");
-      ta.value = fullServerAddress.value;
-      ta.style.cssText = "position:fixed;opacity:0";
-      document.body.appendChild(ta);
-      ta.select();
-      document.execCommand("copy");
-      document.body.removeChild(ta);
+      const ta = document.createElement('textarea')
+      ta.value = full
+      ta.style.position = 'absolute'
+      ta.style.opacity = '0'
+      document.body.appendChild(ta)
+      ta.select()
+      document.execCommand('copy')
+      document.body.removeChild(ta)
     }
-    copied.value = true;
-    clearTimeout(copyTimer);
-    copyTimer = setTimeout(() => (copied.value = false), 2000);
-  } catch { }
-};
-
-/* ===================== 生命周期与事件 ===================== */
-const startPolling = () => {
-  if (timer) clearInterval(timer);
-  timer = setInterval(fetchAllServers, 60000);
-};
-
-const handleVisibilityChange = () => {
-  if (document.hidden) {
-    if (timer) clearInterval(timer);
-  } else {
-    startPolling();
-  }
-};
-
-onMounted(() => {
-  fetchAllServers();
-  startPolling();
-  document.addEventListener("visibilitychange", handleVisibilityChange);
-});
-
-onUnmounted(() => {
-  if (timer) clearInterval(timer);
-  if (copyTimer) clearTimeout(copyTimer);
-  document.removeEventListener("visibilitychange", handleVisibilityChange);
-});
+    copied.value = true
+    setTimeout(() => (copied.value = false), 2000)
+  } catch {}
+}
 </script>
-
-<style scoped>
-/* 自定义深色极简滚动条 */
-.custom-scrollbar::-webkit-scrollbar {
-  width: 5px;
-}
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 4px;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 4px;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(16, 185, 129, 0.5);
-}
-</style>
