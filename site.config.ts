@@ -6,6 +6,13 @@ export default {
   SITE_SINCE: '2026',
   SITE_AUTHOR: 'lestday233',
 
+  // ===== API 接口配置 =====
+  API_ENDPOINTS: {
+    SERVER_STATUS: 'https://api.hanximeng.com/mc/?server_addr={ip}&server_port={port}',
+    AVATAR_BY_UUID: 'https://mc-heads.net/avatar/{uuid}/36',
+    AVATAR_BY_NAME: 'https://mc-heads.net/avatar/{name}/36'
+  },
+
   // ===== 管理员 OP =====
   MC_SERVER_STAFF: [
     'lestday233',
@@ -51,7 +58,7 @@ export default {
     }
   ],
 
-  // 兼容旧字段（防止其他地方引用报错）
+  // 兼容旧字段
   MC_SERVER_IP: 'mc.r55770545.nyat.app',
   MC_SERVER_PORT: 61482
 }
