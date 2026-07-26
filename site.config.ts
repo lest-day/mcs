@@ -9,6 +9,7 @@ export default {
   // ===== API 接口配置 =====
   API_ENDPOINTS: {
     SERVER_STATUS: 'https://api.hanximeng.com/mc/?server_addr={ip}&server_port={port}',
+    SERVER_STATUS_BACKUP: "https://uapis.cn/api/mcserver?server={ip}:{port}",
     AVATAR_BY_UUID: 'https://mc-heads.net/avatar/{uuid}/36',
     AVATAR_BY_NAME: 'https://mc-heads.net/avatar/{name}/36'
   },
