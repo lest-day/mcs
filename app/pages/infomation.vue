@@ -235,10 +235,10 @@ const SERVER_STATE = {
 };
 
 /* ===================== 服务器数据 ===================== */
-const serverList = ref(siteConfig.MC_SERVERS || []);
+const serverList = ref(siteConfig.MC_SERVERS);
 const currentServerIndex = ref(0);
 const currentServer = computed(
-  () => serverList.value[currentServerIndex.value] || {}
+  () => serverList.value[currentServerIndex.value]
 );
 
 /* ===================== 状态 ===================== */
@@ -261,7 +261,6 @@ const isInitialLoading = computed(
 
 const fullServerAddress = computed(() => {
   const s = currentServer.value;
-  if (!s.ip) return "";
   return s.port === 25565 ? s.ip : `${s.ip}:${s.port}`;
 });
 
@@ -288,7 +287,7 @@ const currentServerState = computed(() =>
 
 const lastServerStateMap = reactive({});
 watch(currentServerState, (state) => {
-  if (state !== SERVER_STATE.LOADING && currentServer.value.id) {
+  if (state !== SERVER_STATE.LOADING) {
     lastServerStateMap[currentServer.value.id] = state;
   }
 });
@@ -403,10 +402,7 @@ const emptyTip = computed(() => {
 
 /* ===================== 工具方法 ===================== */
 const switchServer = (index) => {
-  if (currentServerIndex.value !== index) {
-    currentServerIndex.value = index;
-    avatarErrorMap.value = {}; // 切换服务器时清理头像加载错误状态
-  }
+  currentServerIndex.value = index;
 };
 
 const isStaff = (name) =>
@@ -473,14 +469,12 @@ const getAvatarBg = (index) => {
 /* ===================== 数据拉取 ===================== */
 const fetchAllServers = async () => {
   loading.value = true;
-  const statusApiTpl = siteConfig.API_ENDPOINTS?.SERVER_STATUS;
+  const statusApiTpl =
+    siteConfig.API_ENDPOINTS?.SERVER_STATUS;
 
   try {
     const promises = serverList.value.map(async (server) => {
       try {
-        if (!statusApiTpl) {
-          return { id: server.id, data: { online: false } };
-        }
         const url = statusApiTpl
           .replace("{ip}", server.ip)
           .replace("{port}", server.port);
@@ -538,37 +532,21 @@ const copyIp = async () => {
   } catch { }
 };
 
-/* ===================== 生命周期与事件 ===================== */
+/* ===================== 生命周期 ===================== */
 const startPolling = () => {
-  stopPolling();
   timer = setInterval(fetchAllServers, 60000);
-};
-
-const stopPolling = () => {
-  if (timer) {
-    clearInterval(timer);
-    timer = null;
-  }
-};
-
-const handleVisibilityChange = () => {
-  if (document.hidden) {
-    stopPolling();
-  } else {
-    fetchAllServers();
-    startPolling();
-  }
 };
 
 onMounted(() => {
   fetchAllServers();
   startPolling();
-  document.addEventListener("visibilitychange", handleVisibilityChange);
+  document.addEventListener("visibilitychange", () => {
+    document.hidden ? clearInterval(timer) : startPolling();
+  });
 });
 
 onUnmounted(() => {
-  stopPolling();
+  clearInterval(timer);
   clearTimeout(copyTimer);
-  document.removeEventListener("visibilitychange", handleVisibilityChange);
 });
 </script>

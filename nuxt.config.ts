@@ -14,6 +14,9 @@ export default defineNuxtConfig({
         { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
         { rel: 'stylesheet', href: 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css' },
       ],
+      script: [
+        { src: 'https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4', defer: true },
+      ]
     },
   },
   css: ['~/assets/css/global.css'],
