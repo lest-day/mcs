@@ -35,19 +35,19 @@ const siteName = config.SITE_NAME;
             <div class="flex space-x-4 items-center h-full">
               <a href="/news"
                 class="rounded-md px-3 py-2 text-sm font-medium text-gray-200 hover:bg-white/5 hover:text-white">
-                <i class="fa-solid fa-newspaper"></i> 新闻
+                <i class="fa-solid fa-newspaper"></i> 新闻
               </a>
               <a href="/photo"
                 class="rounded-md px-3 py-2 text-sm font-medium text-gray-200 hover:bg-white/5 hover:text-white">
-                <i class="fa-solid fa-file-image"></i> 照片
+                <i class="fa-solid fa-file-image"></i> 照片
               </a>
               <a href="/command"
                 class="rounded-md px-3 py-2 text-sm font-medium text-gray-200 hover:bg-white/5 hover:text-white">
-                <i class="fa-solid fa-terminal"></i> 命令
+                <i class="fa-solid fa-terminal"></i> 命令
               </a>
               <a href="/infomation"
                 class="rounded-md px-3 py-2 text-sm font-medium text-gray-200 hover:bg-white/5 hover:text-white">
-                <i class="fa-solid fa-compass"></i> 状态
+                <i class="fa-solid fa-compass"></i> 状态
               </a>
             </div>
           </div>
@@ -61,19 +61,19 @@ const siteName = config.SITE_NAME;
         <div class="grid grid-cols-2 gap-2">
           <a href="/news"
             class="rounded-md px-3 py-2 text-sm font-medium text-gray-200 hover:bg-white/5 hover:text-white">
-            <i class="fa-solid fa-newspaper"></i> 新闻
+             <i class="fa-solid fa-newspaper"></i> 新闻
           </a>
           <a href="/photo"
             class="rounded-md px-3 py-2 text-sm font-medium text-gray-200 hover:bg-white/5 hover:text-white">
-            <i class="fa-solid fa-file-image"></i> 照片
+             <i class="fa-solid fa-file-image"></i> 照片
           </a>
           <a href="/command"
             class="rounded-md px-3 py-2 text-sm font-medium text-gray-200 hover:bg-white/5 hover:text-white">
-            <i class="fa-solid fa-terminal"></i> 命令
+             <i class="fa-solid fa-terminal"></i> 命令
           </a>
           <a href="/infomation"
             class="rounded-md px-3 py-2 text-sm font-medium text-gray-200 hover:bg-white/5 hover:text-white">
-            <i class="fa-solid fa-compass"></i> 状态
+             <i class="fa-solid fa-compass"></i> 状态
           </a>
         </div>
       </div>
