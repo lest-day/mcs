@@ -71,16 +71,10 @@
             <span class="font-bold text-base text-gray-100 truncate">{{ server.name }}</span>
           </div>
 
-          <!-- ✅ Tag 激活态覆盖（你上一次要的） -->
-          <span
-            :class="[
-              server.tagClass,
-              'text-xs font-bold px-2.5 py-0.5 rounded-full shrink-0 border ml-2 transition-colors duration-300',
-              currentServerIndex === index
-                ? '!bg-emerald-500/15 !text-emerald-400 !border-emerald-500/50'
-                : ''
-            ]"
-          >
+          <span :class="[
+            server.tagClass,
+            'text-xs font-bold px-2.5 py-0.5 rounded-full shrink-0 border ml-2 transition-colors duration-300',
+          ]">
             {{ server.tag }}
           </span>
         </div>
@@ -95,7 +89,8 @@
             class="flex items-center justify-between gap-3 w-full md:w-auto bg-black/50 border border-white/10 px-4 py-2.5 rounded-xl">
             <div class="flex items-center gap-3 min-w-0">
               <span class="flex h-2.5 w-2.5 relative shrink-0">
-                <span :class="statusPingColor" class="absolute inline-flex h-full w-full rounded-full opacity-75"></span>
+                <span :class="statusPingColor"
+                  class="absolute inline-flex h-full w-full rounded-full opacity-75"></span>
                 <span :class="statusDotColor" class="relative inline-flex rounded-full h-2.5 w-2.5"></span>
               </span>
               <span class="text-sm font-mono text-emerald-300 font-bold select-all truncate">
@@ -173,16 +168,10 @@
                   <div class="flex items-center gap-3 min-w-0">
                     <div
                       class="avatar-container shrink-0 w-9 h-9 rounded-lg overflow-hidden border border-white/10 flex items-center justify-center relative bg-black/50">
-                      <img
-                        v-show="!avatarErrorMap[getPlayerKey(player, index)]"
-                        :src="getAvatarUrl(player)"
-                        :alt="getPlayerName(player)"
-                        class="avatar-img absolute inset-0 w-full h-full object-cover z-10"
-                        @error="() => handleAvatarError(getPlayerKey(player, index))"
-                      />
-                      <div
-                        v-show="avatarErrorMap[getPlayerKey(player, index)]"
-                        :class="getAvatarBg(index)"
+                      <img v-show="!avatarErrorMap[getPlayerKey(player, index)]" :src="getAvatarUrl(player)"
+                        :alt="getPlayerName(player)" class="avatar-img absolute inset-0 w-full h-full object-cover z-10"
+                        @error="() => handleAvatarError(getPlayerKey(player, index))" />
+                      <div v-show="avatarErrorMap[getPlayerKey(player, index)]" :class="getAvatarBg(index)"
                         class="avatar-fallback absolute inset-0 z-20 flex items-center justify-center text-[11px] font-black uppercase text-white leading-none select-none">
                         {{ getPlayerName(player)?.[0] || '?' }}
                       </div>
@@ -470,7 +459,7 @@ const copyIp = async () => {
     copied.value = true
     clearTimeout(copyTimer)
     copyTimer = setTimeout(() => (copied.value = false), 2000)
-  } catch {}
+  } catch { }
 }
 
 /* ===================== 生命周期 ===================== */
@@ -494,7 +483,7 @@ onMounted(() => {
 onUnmounted(() => {
   stopPolling()
   clearTimeout(copyTimer)
-  document.removeEventListener('visibilitychange', () => {})
+  document.removeEventListener('visibilitychange', () => { })
 })
 </script>
 
@@ -502,13 +491,16 @@ onUnmounted(() => {
 .custom-scrollbar::-webkit-scrollbar {
   width: 5px;
 }
+
 .custom-scrollbar::-webkit-scrollbar-track {
   background: transparent;
 }
+
 .custom-scrollbar::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.15);
   border-radius: 9999px;
 }
+
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.3);
 }
@@ -516,6 +508,7 @@ onUnmounted(() => {
 .avatar-container {
   flex-shrink: 0;
 }
+
 .avatar-img {
   image-rendering: pixelated;
 }
