@@ -27,9 +27,10 @@ export default {
     {
       id: 'survival',
       name: '生存与建造服',
+      shortname: '生建服',
       ip: 'play.simpfun.cn',
       port: 19532,
-      tag: '纯净生存',
+      tag: '建造体验',
       tagClass: 'bg-blue-500/20 text-blue-300 border-blue-500/30',
       icon: 'fa-solid fa-cubes'
     },
