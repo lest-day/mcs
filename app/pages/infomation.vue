@@ -1,14 +1,12 @@
 <template>
   <section id="server-dashboard"
     class="relative min-h-screen flex items-center justify-center text-white px-4 overflow-y-auto py-10 md:py-16 selection:bg-emerald-500/30">
-    <!-- 背景图及遮罩 -->
     <NuxtImg src="/photo/wallpaper/91fd2fe5-b82b-4f16-b65f-76f124383c12.jpg" alt="服务器背景墙纸"
       class="absolute inset-0 w-full h-full object-cover select-none pointer-events-none" preload />
     <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/80 to-black/60 backdrop-blur-[2px]"></div>
 
     <div class="relative z-10 flex flex-col items-center justify-center max-w-5xl w-full gap-5 px-2 md:px-6">
-
-      <!-- 1. 品牌 Header -->
+      <!-- Header -->
       <header
         class="flex flex-col sm:flex-row items-center justify-between gap-5 w-full bg-black/40 backdrop-blur-xl border border-white/10 p-5 md:p-6 rounded-3xl shadow-2xl">
         <div class="flex items-center gap-4 text-left">
@@ -26,14 +24,15 @@
           </div>
         </div>
 
-        <!-- 聚合状态指标 -->
         <div class="flex items-center gap-3">
           <div class="bg-black/50 border border-white/10 px-4 py-2.5 rounded-xl flex items-center gap-3">
             <i class="fa-solid fa-users text-emerald-400 text-sm"></i>
             <div class="text-left">
-              <p class="text-[11px] text-gray-400 font-bold uppercase tracking-wider">总在线</p>
+              <p class="text-[11px] text-gray-400 font-bold uppercase tracking-wider">
+                总在线
+              </p>
               <p class="text-sm font-black font-mono text-gray-200">
-                {{ isInitialLoading ? '--' : `${displayTotalOnline} 人` }}
+                {{ isInitialLoading ? "--" : `${displayTotalOnline} 人` }}
               </p>
             </div>
           </div>
@@ -41,9 +40,11 @@
           <div class="bg-black/50 border border-white/10 px-4 py-2.5 rounded-xl flex items-center gap-3">
             <i class="fa-solid fa-server text-blue-400 text-sm"></i>
             <div class="text-left">
-              <p class="text-[11px] text-gray-400 font-bold uppercase tracking-wider">子服状态</p>
+              <p class="text-[11px] text-gray-400 font-bold uppercase tracking-wider">
+                子服状态
+              </p>
               <p class="text-sm font-black font-mono text-gray-200">
-                {{ isInitialLoading ? '--' : `${onlineServerCount} / ${serverList.length} 在线` }}
+                {{ isInitialLoading ? "--" : `${onlineServerCount} / ${serverList.length} 在线` }}
               </p>
             </div>
           </div>
@@ -51,13 +52,17 @@
           <button @click="fetchAllServers" :disabled="loading"
             class="w-10 h-10 rounded-xl bg-black/50 border border-white/10 flex items-center justify-center text-gray-300 hover:text-white hover:border-white/20 disabled:opacity-40 active:scale-95 transition-all shadow-sm shrink-0"
             title="刷新数据">
-            <i
-              :class="loading ? 'fa-solid fa-spinner animate-spin text-gray-200 text-sm' : justRefreshed ? 'fa-solid fa-check text-emerald-400 text-sm' : 'fa-solid fa-rotate text-sm'"></i>
+            <i :class="loading
+                ? 'fa-solid fa-spinner animate-spin text-gray-200 text-sm'
+                : justRefreshed
+                  ? 'fa-solid fa-check text-emerald-400 text-sm'
+                  : 'fa-solid fa-rotate text-sm'
+              "></i>
           </button>
         </div>
       </header>
 
-      <!-- 2. 服务器 Tabs -->
+      <!-- ✅ Tabs（已修复 tag 颜色问题） -->
       <section class="grid grid-cols-1 md:grid-cols-3 gap-3.5 w-full">
         <div v-for="(server, index) in serverList" :key="server.id" @click="switchServer(index)" :class="[
           'cursor-pointer relative overflow-hidden rounded-2xl p-4 border transition-all duration-300 backdrop-blur-xl flex items-center justify-between group select-none',
@@ -66,21 +71,35 @@
             : 'bg-black/30 border-white/10 hover:border-white/20 hover:bg-black/50'
         ]">
           <div class="flex items-center gap-2.5 min-w-0">
-            <i :class="[server.icon, currentServerIndex === index ? 'text-emerald-400' : 'text-gray-400']"
-              class="text-base shrink-0"></i>
-            <span class="font-bold text-base text-gray-100 truncate">{{ server.name }}</span>
+            <i :class="[
+              server.icon,
+              currentServerIndex === index ? 'text-emerald-400' : 'text-gray-400',
+              'text-base shrink-0 transition-colors'
+            ]"></i>
+
+            <!-- ✅ 不再依赖父级 text-white -->
+            <span :class="currentServerIndex === index
+                ? 'font-bold text-base truncate text-white'
+                : 'font-bold text-base truncate text-gray-400 group-hover:text-white'
+              ">
+              {{ server.name }}
+            </span>
           </div>
 
+          <!-- ✅ Tag：强制使用自身颜色 -->
           <span :class="[
-            server.tagClass,
-            'text-xs font-bold px-2.5 py-0.5 rounded-full shrink-0 border ml-2 transition-colors duration-300',
+            server.tagBg,
+            server.tagText,
+            server.tagBorder,
+            'text-current', // ✅ 关键：不被父级 text-white 覆盖
+            'text-xs font-bold px-2.5 py-0.5 rounded-full shrink-0 border ml-2 transition-colors duration-300'
           ]">
             {{ server.tag }}
           </span>
         </div>
       </section>
 
-      <!-- 3. 一体化控制台 -->
+      <!-- 一体化控制台 -->
       <main class="flex flex-col gap-4 w-full">
         <!-- IP + 参数面板 -->
         <section
@@ -100,7 +119,7 @@
             <button @click="copyIp"
               class="shrink-0 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white text-xs font-bold px-3.5 py-1.5 rounded-lg transition-all shadow-md shadow-emerald-950/40 flex items-center gap-1.5">
               <i :class="copied ? 'fa-solid fa-check' : 'fa-regular fa-copy'"></i>
-              <span>{{ copied ? '已复制' : '复制' }}</span>
+              <span>{{ copied ? "已复制" : "复制" }}</span>
             </button>
           </div>
 
@@ -116,7 +135,7 @@
               <i class="fa-solid fa-box-open text-orange-400 text-xs"></i>
               <span class="text-gray-400 text-xs uppercase font-bold">CORE</span>
               <span class="font-bold font-mono text-gray-200 text-xs truncate max-w-[120px]" :title="softwareName">
-                {{ displayState === SERVER_STATE.ONLINE ? softwareName : 'N/A' }}
+                {{ displayState === SERVER_STATE.ONLINE ? softwareName : "N/A" }}
               </span>
             </div>
 
@@ -124,7 +143,7 @@
               <i class="fa-solid fa-code-branch text-blue-400 text-xs"></i>
               <span class="text-gray-400 text-xs uppercase font-bold">VERSION</span>
               <span class="font-bold font-mono text-gray-200 text-xs truncate max-w-[120px]" :title="versionName">
-                {{ displayState === SERVER_STATE.ONLINE ? versionName : 'N/A' }}
+                {{ displayState === SERVER_STATE.ONLINE ? versionName : "N/A" }}
               </span>
             </div>
           </div>
@@ -139,7 +158,8 @@
               <i class="fa-solid fa-circle-user text-emerald-400 text-sm"></i>
               <span>
                 {{ currentServer.name }}
-                在线玩家 ({{ onlinePlayersCount }} / {{ maxPlayersCount }})
+                在线玩家 ({{ onlinePlayersCount }} /
+                {{ maxPlayersCount }})
               </span>
             </h2>
             <div
@@ -170,10 +190,12 @@
                       class="avatar-container shrink-0 w-9 h-9 rounded-lg overflow-hidden border border-white/10 flex items-center justify-center relative bg-black/50">
                       <img v-show="!avatarErrorMap[getPlayerKey(player, index)]" :src="getAvatarUrl(player)"
                         :alt="getPlayerName(player)" class="avatar-img absolute inset-0 w-full h-full object-cover z-10"
-                        @error="() => handleAvatarError(getPlayerKey(player, index))" />
+                        @error="
+                          () => handleAvatarError(getPlayerKey(player, index))
+                        " />
                       <div v-show="avatarErrorMap[getPlayerKey(player, index)]" :class="getAvatarBg(index)"
                         class="avatar-fallback absolute inset-0 z-20 flex items-center justify-center text-[11px] font-black uppercase text-white leading-none select-none">
-                        {{ getPlayerName(player)?.[0] || '?' }}
+                        {{ getPlayerName(player)?.[0] || "?" }}
                       </div>
                     </div>
 
@@ -202,289 +224,310 @@
           </div>
         </section>
       </main>
-
     </div>
   </section>
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, onUnmounted, watch } from 'vue'
-import siteConfig from '@@/site.config'
+import { ref, reactive, computed, onMounted, onUnmounted, watch } from "vue";
+import siteConfig from "@@/site.config";
 
-/* =====================    常量    ===================== */
+/* ===================== 常量 ===================== */
 const SERVER_STATE = {
-  LOADING: 'LOADING',
-  ONLINE: 'ONLINE',
-  OFFLINE: 'OFFLINE'
-}
+  LOADING: "LOADING",
+  ONLINE: "ONLINE",
+  OFFLINE: "OFFLINE"
+};
 
 /* ===================== 服务器数据 ===================== */
-const serverList = ref(siteConfig.MC_SERVERS)
-const currentServerIndex = ref(0)
-const currentServer = computed(() => serverList.value[currentServerIndex.value])
+const serverList = ref(siteConfig.MC_SERVERS);
+const currentServerIndex = ref(0);
+const currentServer = computed(
+  () => serverList.value[currentServerIndex.value]
+);
 
-/* =====================    状态    ===================== */
-const serverStatuses = ref({})
-const avatarErrorMap = ref({})
+/* ===================== 状态 ===================== */
+const serverStatuses = ref({});
+const avatarErrorMap = ref({});
 
-const loading = ref(true)
-const justRefreshed = ref(false)
-const hasLoadedOnce = ref(false)
-const copied = ref(false)
-const lastUpdated = ref(null)
+const loading = ref(true);
+const justRefreshed = ref(false);
+const hasLoadedOnce = ref(false);
+const copied = ref(false);
+const lastUpdated = ref(null);
 
-let timer = null
-let copyTimer = null
+let timer = null;
+let copyTimer = null;
 
 /* ===================== 计算属性 ===================== */
-const isInitialLoading = computed(() => loading.value && !hasLoadedOnce.value)
+const isInitialLoading = computed(
+  () => loading.value && !hasLoadedOnce.value
+);
 
 const fullServerAddress = computed(() => {
-  const s = currentServer.value
-  return s.port === 25565 ? s.ip : `${s.ip}:${s.port}`
-})
+  const s = currentServer.value;
+  return s.port === 25565 ? s.ip : `${s.ip}:${s.port}`;
+});
 
 const getServerState = (id) => {
-  const res = serverStatuses.value[id]
+  const res = serverStatuses.value[id];
   if (!res) {
-    return isInitialLoading.value ? SERVER_STATE.LOADING : SERVER_STATE.OFFLINE
+    return isInitialLoading.value
+      ? SERVER_STATE.LOADING
+      : SERVER_STATE.OFFLINE;
   }
 
   const online =
     res.online === true ||
-    res.status === 'success' ||
+    res.status === "success" ||
     res.status === true ||
-    res.status === 200
+    res.status === 200;
 
-  return online ? SERVER_STATE.ONLINE : SERVER_STATE.OFFLINE
-}
+  return online ? SERVER_STATE.ONLINE : SERVER_STATE.OFFLINE;
+};
 
-const currentServerState = computed(() => getServerState(currentServer.value.id))
+const currentServerState = computed(() =>
+  getServerState(currentServer.value.id)
+);
 
-/* Tab 切换状态缓存 */
-const lastServerStateMap = reactive({})
+const lastServerStateMap = reactive({});
 watch(currentServerState, (state) => {
-  lastServerStateMap[currentServer.value.id] = state
-})
+  if (state !== SERVER_STATE.LOADING) {
+    lastServerStateMap[currentServer.value.id] = state;
+  }
+});
 
 const displayState = computed(() =>
   currentServerState.value === SERVER_STATE.LOADING
     ? lastServerStateMap[currentServer.value.id] || SERVER_STATE.LOADING
     : currentServerState.value
-)
+);
 
 const getInfo = (id) => {
-  const res = serverStatuses.value[id]
-  return res?.info || res?.data || res || {}
-}
+  const res = serverStatuses.value[id];
+  return res?.info || res?.data || res || {};
+};
 
-const infoData = computed(() => getInfo(currentServer.value.id))
+const infoData = computed(() => getInfo(currentServer.value.id));
 
-const onlinePlayersCount = computed(() => Number(infoData.value?.players?.online) || 0)
-const maxPlayersCount = computed(() => Number(infoData.value?.players?.max) || 0)
+const onlinePlayersCount = computed(
+  () => Number(infoData.value?.players?.online) || 0
+);
+const maxPlayersCount = computed(
+  () => Number(infoData.value?.players?.max) || 0
+);
 
 const playersList = computed(() => {
-  const list = infoData.value?.players?.sample || infoData.value?.players?.list || []
-  return Array.isArray(list) ? list : []
-})
+  const list =
+    infoData.value?.players?.sample ||
+    infoData.value?.players?.list ||
+    [];
+  return Array.isArray(list) ? list : [];
+});
 
-const hasCachedPlayers = computed(() => playersList.value.length > 0)
+const hasCachedPlayers = computed(() => playersList.value.length > 0);
 
-/* 总在线 */
 const totalOnlinePlayers = computed(() =>
   serverList.value.reduce((sum, s) => {
-    const info = getInfo(s.id)
-    return sum + (Number(info?.players?.online) || 0)
+    const info = getInfo(s.id);
+    return sum + (Number(info?.players?.online) || 0);
   }, 0)
-)
+);
 
-const lastTotalOnline = ref(0)
-watch(totalOnlinePlayers, v => {
-  if (v >= 0) lastTotalOnline.value = v
-})
+const lastTotalOnline = ref(0);
+watch(totalOnlinePlayers, (v) => {
+  if (v >= 0) lastTotalOnline.value = v;
+});
 
 const displayTotalOnline = computed(() =>
-  isInitialLoading.value ? '--' : (totalOnlinePlayers.value ?? lastTotalOnline.value)
-)
+  isInitialLoading.value
+    ? "--"
+    : totalOnlinePlayers.value ?? lastTotalOnline.value
+);
 
-const onlineServerCount = computed(() =>
-  serverList.value.filter(s => getServerState(s.id) === SERVER_STATE.ONLINE).length
-)
+const onlineServerCount = computed(
+  () =>
+    serverList.value.filter(
+      (s) => getServerState(s.id) === SERVER_STATE.ONLINE
+    ).length
+);
 
-const fullVersionStr = computed(() => String(infoData.value?.version?.name || ''))
+const fullVersionStr = computed(
+  () => String(infoData.value?.version?.name || "")
+);
 
 const softwareName = computed(() => {
-  const str = fullVersionStr.value.trim()
-  if (!str) return 'Minecraft'
-  const m = str.match(/^([a-zA-Z][\w\-]*)/)
-  return m ? m[1] : 'Minecraft'
-})
+  const str = fullVersionStr.value.trim();
+  if (!str) return "Minecraft";
+  const m = str.match(/^([a-zA-Z][\w\-]*)/);
+  return m ? m[1] : "Minecraft";
+});
 
 const versionName = computed(() => {
-  const str = fullVersionStr.value.trim()
-  if (!str) return '1.21.x'
-  return str.replace(/^[^\d]*/, '').trim() || str
-})
+  const str = fullVersionStr.value.trim();
+  if (!str) return "1.21.x";
+  return str.replace(/^[^\d]*/, "").trim() || str;
+});
 
 /* ===================== 状态样式 ===================== */
 const statusPingColor = computed(() => ({
-  'bg-amber-400': displayState.value === SERVER_STATE.LOADING,
-  'bg-emerald-400': displayState.value === SERVER_STATE.ONLINE,
-  'bg-rose-400': displayState.value === SERVER_STATE.OFFLINE
-}))
+  "bg-amber-400": displayState.value === SERVER_STATE.LOADING,
+  "bg-emerald-400": displayState.value === SERVER_STATE.ONLINE,
+  "bg-rose-400": displayState.value === SERVER_STATE.OFFLINE
+}));
 
 const statusDotColor = computed(() => ({
-  'bg-amber-500': displayState.value === SERVER_STATE.LOADING,
-  'bg-emerald-500': displayState.value === SERVER_STATE.ONLINE,
-  'bg-rose-500': displayState.value === SERVER_STATE.OFFLINE
-}))
+  "bg-amber-500": displayState.value === SERVER_STATE.LOADING,
+  "bg-emerald-500": displayState.value === SERVER_STATE.ONLINE,
+  "bg-rose-500": displayState.value === SERVER_STATE.OFFLINE
+}));
 
 const statusTextColor = computed(() => ({
-  'text-amber-400': displayState.value === SERVER_STATE.LOADING,
-  'text-emerald-400': displayState.value === SERVER_STATE.ONLINE,
-  'text-rose-400': displayState.value === SERVER_STATE.OFFLINE
-}))
+  "text-amber-400": displayState.value === SERVER_STATE.LOADING,
+  "text-emerald-400": displayState.value === SERVER_STATE.ONLINE,
+  "text-rose-400": displayState.value === SERVER_STATE.OFFLINE
+}));
 
-const statusLabel = computed(() => ({
-  [SERVER_STATE.LOADING]: 'CHECKING',
-  [SERVER_STATE.ONLINE]: 'ONLINE',
-  [SERVER_STATE.OFFLINE]: 'OFFLINE'
-})[displayState.value])
+const statusLabel = computed(
+  () =>
+    ({
+      [SERVER_STATE.LOADING]: "CHECKING",
+      [SERVER_STATE.ONLINE]: "ONLINE",
+      [SERVER_STATE.OFFLINE]: "OFFLINE"
+    })[displayState.value]
+);
 
 const emptyTip = computed(() => {
-  if (displayState.value === SERVER_STATE.OFFLINE) return '服务器离线，无法获取玩家列表'
-  if (onlinePlayersCount.value === 0) return '当前世界空无一人，快来成为第一位访客吧'
-  return ''
-})
+  if (displayState.value === SERVER_STATE.OFFLINE)
+    return "服务器离线，无法获取玩家列表";
+  if (onlinePlayersCount.value === 0)
+    return "当前世界空无一人，快来成为第一位访客吧";
+  return "";
+});
 
 /* ===================== 工具方法 ===================== */
 const switchServer = (index) => {
-  currentServerIndex.value = index
-}
+  currentServerIndex.value = index;
+};
 
 const isStaff = (name) =>
   name &&
   Array.isArray(siteConfig.MC_SERVER_STAFF) &&
-  siteConfig.MC_SERVER_STAFF.some(s => s.toLowerCase() === name.toLowerCase())
+  siteConfig.MC_SERVER_STAFF.some(
+    (s) => s.toLowerCase() === name.toLowerCase()
+  );
 
 const getPlayerName = (p) =>
-  typeof p === 'string' ? p : p?.name || p?.username || '未知玩家'
+  typeof p === "string" ? p : p?.name || p?.username || "未知玩家";
 
 const getPlayerUuid = (p) => {
-  const id = p?.id || p?.uuid
-  return typeof id === 'string' ? id.replace(/-/g, '') : null
-}
+  const id = p?.id || p?.uuid;
+  return typeof id === "string" ? id.replace(/-/g, "") : null;
+};
 
 const getPlayerKey = (player, index) =>
-  getPlayerUuid(player) || `${getPlayerName(player)}-${index}`
+  getPlayerUuid(player) || `${getPlayerName(player)}-${index}`;
 
 const getAvatarUrl = (player) => {
-  const uuid = getPlayerUuid(player)
+  const uuid = getPlayerUuid(player);
   if (uuid) {
-    return `https://crafatar.com/avatars/${uuid}?size=36&overlay`
+    return `https://crafatar.com/avatars/${uuid}?size=36&overlay`;
   }
-  return `https://mc-heads.net/avatar/${encodeURIComponent(getPlayerName(player))}/36`
-}
+  return `https://mc-heads.net/avatar/${encodeURIComponent(
+    getPlayerName(player)
+  )}/36`;
+};
 
 const handleAvatarError = (key) => {
-  avatarErrorMap.value[key] = true
-}
+  avatarErrorMap.value[key] = true;
+};
 
 const getAvatarBg = (index) => {
   const bgs = [
-    'bg-gradient-to-br from-emerald-600 to-teal-800',
-    'bg-gradient-to-br from-blue-600 to-indigo-800',
-    'bg-gradient-to-br from-amber-500 to-orange-700',
-    'bg-gradient-to-br from-purple-600 to-pink-700',
-    'bg-gradient-to-br from-rose-600 to-red-800',
-    'bg-gradient-to-br from-cyan-500 to-blue-700',
-    'bg-gradient-to-br from-fuchsia-600 to-purple-900',
-    'bg-gradient-to-br from-lime-500 to-emerald-700',
-    'bg-gradient-to-br from-sky-500 to-indigo-700',
-    'bg-gradient-to-br from-amber-600 to-yellow-800'
-  ]
-  return bgs[index % bgs.length]
-}
+    "bg-gradient-to-br from-emerald-600 to-teal-800",
+    "bg-gradient-to-br from-blue-600 to-indigo-800",
+    "bg-gradient-to-br from-amber-500 to-orange-700",
+    "bg-gradient-to-br from-purple-600 to-pink-700",
+    "bg-gradient-to-br from-rose-600 to-red-800",
+    "bg-gradient-to-br from-cyan-500 to-blue-700",
+    "bg-gradient-to-br from-fuchsia-600 to-purple-900",
+    "bg-gradient-to-br from-lime-500 to-emerald-700",
+    "bg-gradient-to-br from-sky-500 to-indigo-700",
+    "bg-gradient-to-br from-amber-600 to-yellow-800"
+  ];
+  return bgs[index % bgs.length];
+};
 
 /* ===================== 数据拉取 ===================== */
 const fetchAllServers = async () => {
-  loading.value = true
+  loading.value = true;
   try {
-    await Promise.all(
-      serverList.value.map(async (server) => {
-        try {
-          serverStatuses.value[server.id] = await $fetch(
-            `https://api.hanximeng.com/mc/?server_addr=${server.ip}&server_port=${server.port}`,
-            { timeout: 8000, server: false }
-          )
-        } catch {
-          serverStatuses.value[server.id] = { online: false }
-        }
-      })
-    )
-    lastUpdated.value = new Date()
-    justRefreshed.value = true
-    setTimeout(() => (justRefreshed.value = false), 1200)
+    for (const server of serverList.value) {
+      try {
+        serverStatuses.value[server.id] = await $fetch(
+          `https://api.hanximeng.com/mc/?server_addr=${server.ip}&server_port=${server.port}`,
+          { timeout: 8000 }
+        );
+      } catch {
+        serverStatuses.value[server.id] = { online: false };
+      }
+    }
+    lastUpdated.value = new Date();
+    justRefreshed.value = true;
+    setTimeout(() => (justRefreshed.value = false), 1200);
   } finally {
-    loading.value = false
-    hasLoadedOnce.value = true
+    loading.value = false;
+    hasLoadedOnce.value = true;
   }
-}
+};
 
-/* SSR 安全时间 */
 const lastUpdatedText = computed(() => {
-  if (!lastUpdated.value) return '00:00:00'
-  return new Intl.DateTimeFormat('zh-CN', {
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
+  if (!lastUpdated.value) return "00:00:00";
+  return new Intl.DateTimeFormat("zh-CN", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
     hour12: false
-  }).format(lastUpdated.value)
-})
+  }).format(lastUpdated.value);
+});
 
 /* ===================== 复制 IP ===================== */
 const copyIp = async () => {
   try {
     if (navigator.clipboard && window.isSecureContext) {
-      await navigator.clipboard.writeText(fullServerAddress.value)
+      await navigator.clipboard.writeText(fullServerAddress.value);
     } else {
-      const ta = document.createElement('textarea')
-      ta.value = fullServerAddress.value
-      ta.style.cssText = 'position:fixed;opacity:0'
-      document.body.appendChild(ta)
-      ta.select()
-      document.execCommand('copy')
-      document.body.removeChild(ta)
+      const ta = document.createElement("textarea");
+      ta.value = fullServerAddress.value;
+      ta.style.cssText = "position:fixed;opacity:0";
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
     }
-    copied.value = true
-    clearTimeout(copyTimer)
-    copyTimer = setTimeout(() => (copied.value = false), 2000)
+    copied.value = true;
+    clearTimeout(copyTimer);
+    copyTimer = setTimeout(() => (copied.value = false), 2000);
   } catch { }
-}
+};
 
 /* ===================== 生命周期 ===================== */
 const startPolling = () => {
-  fetchAllServers()
-  timer = setInterval(fetchAllServers, 60000)
-}
-
-const stopPolling = () => {
-  clearInterval(timer)
-}
+  timer = setInterval(fetchAllServers, 60000);
+};
 
 onMounted(() => {
-  fetchAllServers()
-  startPolling()
-  document.addEventListener('visibilitychange', () => {
-    document.hidden ? stopPolling() : startPolling()
-  })
-})
+  fetchAllServers();
+  startPolling();
+  document.addEventListener("visibilitychange", () => {
+    document.hidden ? clearInterval(timer) : startPolling();
+  });
+});
 
 onUnmounted(() => {
-  stopPolling()
-  clearTimeout(copyTimer)
-  document.removeEventListener('visibilitychange', () => { })
-})
+  clearInterval(timer);
+  clearTimeout(copyTimer);
+});
 </script>
 
 <style scoped>
