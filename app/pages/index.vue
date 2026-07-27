@@ -1,13 +1,12 @@
 <template>
   <section id="hero" class="relative min-h-screen flex items-center justify-center text-white px-4 overflow-hidden">
-    <NuxtImg src="/photo/wallpaper/18ba3525-9f0b-4e1c-baad-c01185236e38.jpg" alt="服务器背景墙纸"
+    <NuxtImg src="/photo/wallpaper/18ba3525-9f0b-4e1c-baad-c01185236e38.jpg"
       class="absolute inset-0 w-full h-full object-cover" preload />
     <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-black/40"></div>
 
     <div class="relative z-10 flex flex-col lg:flex-row items-center justify-center gap-10 max-w-7xl w-full px-6 py-20">
-      <!-- 服务器 Icon（固定） -->
       <div class="shrink-0 flex-none">
-        <NuxtImg src="/logo_radius.png" alt="清花MC服务器图标"
+        <NuxtImg src="/logo_radius.png" alt="图标"
           class="w-40 h-40 lg:w-44 lg:h-44 rounded-3xl shadow-2xl transition-transform duration-300 hover:scale-105 border border-white/10 object-cover" />
       </div>
 
@@ -17,7 +16,6 @@
         </h1>
 
         <div class="mt-8 flex flex-col lg:flex-row items-stretch lg:items-start gap-4 w-full lg:w-auto">
-          <!-- 服务器 IP 卡片（主服地址） -->
           <div
             class="bg-black/50 backdrop-blur-lg border border-white/10 rounded-2xl p-4 flex items-center justify-between gap-6 min-w-[300px] break-all leading-snug">
             <div class="text-left flex-1">
@@ -36,7 +34,6 @@
             </button>
           </div>
 
-          <!-- 在线状态卡片（全区） -->
           <div
             class="bg-black/50 backdrop-blur-lg border border-white/10 rounded-2xl p-4 flex items-center gap-4 min-w-[240px]">
             <div class="relative flex h-3.5 w-3.5 ml-1">
@@ -60,7 +57,6 @@
               </div>
             </div>
 
-            <!-- 全区在线玩家预览头像（多服合并） -->
             <div v-if="!loading && mergedPlayers.length > 0" class="flex -space-x-3 overflow-hidden ml-auto">
               <div v-for="(player, index) in mergedPlayers.slice(0, 3)" :key="player.id || player.name"
                 :class="getAvatarBg(index)"
@@ -80,7 +76,6 @@
           </div>
         </div>
 
-        <!-- 子服在线状态简述（可选展示） -->
         <div v-if="!loading" class="mt-4 flex flex-wrap gap-2 justify-center lg:justify-start">
           <div v-for="s in serversStatus" :key="s.id" class="text-[11px] px-2 py-1 rounded-lg border"
             :class="s.online ? 'border-emerald-500/30 text-emerald-300 bg-emerald-500/10' : 'border-rose-500/30 text-rose-300 bg-rose-500/10'">

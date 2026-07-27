@@ -25,20 +25,27 @@ export default defineNuxtConfig({
   modules: ['@caeher/nuxt-gallery', '@nuxt/image', '@nuxt/content', 'nuxt-studio'],
 
   studio: {
-    enabled: true,
+    monaco: false,
     repository: {
       provider: 'github',
       owner: 'lest-day',
       repo: 'mcs',
       branch: 'master',
       private: false
+    },
+    meta: {
+      components: false
     }
   },
 
   content: {
-    highlight: {
-      theme: 'github-dark'
-    }
+    build: {
+      markdown: {
+        highlight: {
+          theme: 'github-dark'
+        }
+      }
+    },
   },
 
   nitro: {

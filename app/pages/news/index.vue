@@ -1,39 +1,30 @@
 <template>
-  <section id="news-page"
-    class="relative min-h-screen text-white px-4 selection:bg-emerald-500/30">
-    
-    <!-- Background Layer (全站固定背景) -->
+  <section id="news-page" class="relative min-h-screen text-white px-4 selection:bg-emerald-500/30">
+
     <div class="fixed inset-0 overflow-hidden pointer-events-none select-none z-0">
-      <NuxtImg src="/photo/wallpaper/91fd2fe5-b82b-4f16-b65f-76f124383c12.jpg" alt="新闻背景墙纸"
-        class="w-full h-full object-cover object-center transform scale-105"
-        preload />
+      <NuxtImg src="/photo/wallpaper/91fd2fe5-b82b-4f16-b65f-76f124383c12.jpg"
+        class="w-full h-full object-cover object-center transform scale-105" preload />
       <div class="absolute inset-0 bg-radial from-transparent via-black/60 to-black/90"></div>
       <div class="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-black/50 backdrop-blur-[2px]"></div>
     </div>
 
-    <!-- Foreground Content -->
     <div class="relative z-10 max-w-5xl mx-auto py-10 md:py-16 flex flex-col gap-6">
-      
-      <!-- 极简 Header -->
+
       <header class="flex items-center gap-4 w-full px-2 py-2">
         <div class="shrink-0">
-          <div class="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-black/40 border border-white/10 flex items-center justify-center text-emerald-400 shadow-lg backdrop-blur-md">
+          <div
+            class="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-black/40 border border-white/10 flex items-center justify-center text-emerald-400 shadow-lg backdrop-blur-md">
             <i class="fa-solid fa-newspaper text-xl md:text-2xl"></i>
           </div>
         </div>
         <div class="flex flex-col text-left">
           <h1 class="text-2xl md:text-3xl font-black tracking-tight text-white drop-shadow">
-            {{ siteConfig.SITE_NAME }} · 资讯公告
+            新闻公告
           </h1>
-          <p class="text-xs md:text-sm text-gray-400 font-medium">
-            掌握各区服更新动态，了解最新活动与维护日志
-          </p>
         </div>
       </header>
 
-      <!-- 区服筛选器 -->
       <section class="grid grid-cols-2 md:grid-cols-4 gap-3.5 w-full">
-        <!-- 全部区服 Tab -->
         <button @click="selectedServer = 'all'" :class="[
           'cursor-pointer relative overflow-hidden rounded-2xl p-3.5 border transition-all duration-300 backdrop-blur-xl flex items-center justify-between group select-none text-left',
           selectedServer === 'all'
@@ -41,8 +32,10 @@
             : 'bg-black/30 border-white/10 hover:border-white/20 hover:bg-black/50'
         ]">
           <div class="flex items-center gap-2.5 min-w-0">
-            <i :class="['fa-solid fa-server', selectedServer === 'all' ? 'text-emerald-400' : 'text-gray-400', 'text-base shrink-0']"></i>
-            <span :class="selectedServer === 'all' ? 'font-bold text-sm text-white' : 'font-bold text-sm text-gray-400 group-hover:text-white'">
+            <i
+              :class="['fa-solid fa-server', selectedServer === 'all' ? 'text-emerald-400' : 'text-gray-400', 'text-base shrink-0']"></i>
+            <span
+              :class="selectedServer === 'all' ? 'font-bold text-sm text-white' : 'font-bold text-sm text-gray-400 group-hover:text-white'">
               全部区服
             </span>
           </div>
@@ -51,7 +44,6 @@
           </span>
         </button>
 
-        <!-- 动态生成各区服 Tab -->
         <button v-for="server in siteConfig.MC_SERVERS" :key="server.id" @click="selectedServer = server.id" :class="[
           'cursor-pointer relative overflow-hidden rounded-2xl p-3.5 border transition-all duration-300 backdrop-blur-xl flex items-center justify-between group select-none text-left',
           selectedServer === server.id
@@ -59,8 +51,11 @@
             : 'bg-black/30 border-white/10 hover:border-white/20 hover:bg-black/50'
         ]">
           <div class="flex items-center gap-2.5 min-w-0">
-            <i :class="[server.icon, selectedServer === server.id ? 'text-emerald-400' : 'text-gray-400', 'text-base shrink-0']"></i>
-            <span :class="selectedServer === server.id ? 'font-bold text-sm text-white' : 'font-bold text-sm text-gray-400 group-hover:text-white'" class="truncate">
+            <i
+              :class="[server.icon, selectedServer === server.id ? 'text-emerald-400' : 'text-gray-400', 'text-base shrink-0']"></i>
+            <span
+              :class="selectedServer === server.id ? 'font-bold text-sm text-white' : 'font-bold text-sm text-gray-400 group-hover:text-white'"
+              class="truncate">
               {{ server.shortname || server.name }}
             </span>
           </div>
@@ -70,11 +65,10 @@
         </button>
       </section>
 
-      <!-- 文章展示区域 -->
       <main class="flex flex-col gap-4 w-full">
-        <div class="bg-black/40 backdrop-blur-xl border border-white/10 rounded-3xl p-5 md:p-6 flex flex-col w-full min-h-[420px] shadow-2xl">
-          
-          <!-- 二级类型过滤 -->
+        <div
+          class="bg-black/40 backdrop-blur-xl border border-white/10 rounded-3xl p-5 md:p-6 flex flex-col w-full min-h-[420px] shadow-2xl">
+
           <div class="flex items-center justify-between border-b border-white/5 pb-3.5 mb-4 flex-wrap gap-2">
             <div class="flex items-center gap-1.5">
               <button v-for="(info, key) in filterOptions" :key="key" @click="selectedType = key" :class="[
@@ -86,28 +80,20 @@
                 {{ info.label }}
               </button>
             </div>
-            <span class="text-xs text-gray-400 font-mono">
-              显示 {{ filteredNews.length }} 条记录
-            </span>
           </div>
 
-          <!-- 加载状态 Skeleton -->
           <div v-if="pending" class="flex flex-col gap-3">
-            <div v-for="i in 3" :key="i" class="p-5 bg-black/20 rounded-2xl animate-pulse border border-white/5 h-28"></div>
+            <div v-for="i in 3" :key="i" class="p-5 bg-black/20 rounded-2xl animate-pulse border border-white/5 h-28">
+            </div>
           </div>
 
-          <!-- 新闻列表 -->
-          <div v-else-if="filteredNews.length > 0" class="flex flex-col gap-3.5 max-h-[600px] overflow-y-auto pr-1 custom-scrollbar">
-            <NuxtLink 
-              v-for="item in filteredNews" 
-              :key="item._path || item.path" 
-              :to="item._path || item.path"
-              class="group cursor-pointer bg-black/30 hover:bg-black/50 border border-white/5 hover:border-emerald-500/40 rounded-2xl p-4 md:p-5 transition-all duration-300 shadow-sm flex flex-col gap-2.5 relative overflow-hidden"
-            >
-              <!-- 置顶专属：左侧高亮绿条 -->
+          <div v-else-if="filteredNews.length > 0"
+            class="flex flex-col gap-3.5 max-h-[600px] overflow-y-auto pr-1 custom-scrollbar">
+            <NuxtLink v-for="item in filteredNews" :key="item._path || item.path" :to="item._path || item.path"
+              class="group cursor-pointer bg-black/30 hover:bg-black/50 border border-white/5 hover:border-emerald-500/40 rounded-2xl p-4 md:p-5 transition-all duration-300 shadow-sm flex flex-col gap-2.5 relative overflow-hidden">
+
               <div v-if="checkIsPinned(item)" class="absolute left-0 top-0 bottom-0 w-1 bg-emerald-500"></div>
 
-              <!-- 第一行：区服 + 分类 + 发布日期 -->
               <div class="flex items-center justify-between text-xs text-gray-400">
                 <div class="flex items-center gap-2">
                   <span class="font-medium text-gray-300 flex items-center gap-1.5">
@@ -122,38 +108,33 @@
                 <time class="font-mono text-[11px] text-gray-500">{{ item.date }}</time>
               </div>
 
-              <!-- 第二行：标题（含置顶标签） -->
-              <h3 class="font-bold text-base md:text-lg text-white group-hover:text-emerald-300 transition-colors flex items-center gap-2 flex-wrap">
-                <!-- 置顶专属 Tag -->
-                <span 
-                  v-if="checkIsPinned(item)" 
-                  class="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded-md shrink-0 shadow-sm"
-                >
+              <h3
+                class="font-bold text-base md:text-lg text-white group-hover:text-emerald-300 transition-colors flex items-center gap-2 flex-wrap">
+                <span v-if="checkIsPinned(item)"
+                  class="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded-md shrink-0 shadow-sm">
                   <i class="fa-solid fa-thumbtack text-[10px]"></i>
                   置顶
                 </span>
                 <span>{{ item.title }}</span>
               </h3>
 
-              <!-- 第三行：摘要内容 -->
               <p class="text-xs md:text-sm text-gray-400 line-clamp-2 leading-relaxed">
                 {{ item.description || item.summary }}
               </p>
 
-              <!-- 第四行：作者与跳转 -->
               <div class="flex items-center justify-between pt-1 text-xs text-gray-500">
                 <span class="flex items-center gap-1.5">
                   <i class="fa-regular fa-user text-[11px]"></i>
                   {{ item.author || '管理员' }}
                 </span>
-                <span class="group-hover:translate-x-1 transition-transform flex items-center gap-1 text-emerald-400 font-bold">
+                <span
+                  class="group-hover:translate-x-1 transition-transform flex items-center gap-1 text-emerald-400 font-bold">
                   阅读全文 <i class="fa-solid fa-arrow-right text-[10px]"></i>
                 </span>
               </div>
             </NuxtLink>
           </div>
 
-          <!-- Empty State -->
           <div v-else class="h-64 flex flex-col items-center justify-center text-gray-400">
             <i class="fa-solid fa-box-open text-4xl mb-3 text-gray-600 animate-pulse"></i>
             <p class="text-xs md:text-sm">该区服或分类下暂无相关资讯</p>
@@ -258,14 +239,17 @@ const getTypeMeta = (type) => {
 .custom-scrollbar::-webkit-scrollbar {
   width: 5px;
 }
+
 .custom-scrollbar::-webkit-scrollbar-track {
   background: rgba(0, 0, 0, 0.2);
   border-radius: 9999px;
 }
+
 .custom-scrollbar::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.15);
   border-radius: 9999px;
 }
+
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: rgba(16, 185, 129, 0.4);
 }
