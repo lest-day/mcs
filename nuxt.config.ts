@@ -4,7 +4,10 @@ import tailwindcss from "@tailwindcss/vite";
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
-
+  colorMode: {
+    classSuffix: '',
+    preference: 'dark'
+  },
   app: {
     head: {
       title: '清花MC服务器',
@@ -15,17 +18,12 @@ export default defineNuxtConfig({
       ],
     },
   },
-
   css: ['~/assets/css/global.css'],
-
   vite: {
     plugins: [tailwindcss()],
   },
-
-  modules: ['@caeher/nuxt-gallery', '@nuxt/image', '@nuxt/content', 'nuxt-studio'],
-
+  modules: ['@caeher/nuxt-gallery', '@nuxt/image', '@nuxt/content', 'nuxt-studio', '@nuxtjs/color-mode'],
   studio: {
-    monaco: false,
     repository: {
       provider: 'github',
       owner: 'lest-day',
@@ -33,11 +31,7 @@ export default defineNuxtConfig({
       branch: 'master',
       private: false
     },
-    meta: {
-      components: false
-    }
   },
-
   content: {
     build: {
       markdown: {
@@ -47,7 +41,6 @@ export default defineNuxtConfig({
       }
     },
   },
-
   nitro: {
     preset: 'cloudflare_pages',
     prerender: {
