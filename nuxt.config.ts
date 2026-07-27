@@ -22,15 +22,10 @@ export default defineNuxtConfig({
     plugins: [tailwindcss()],
   },
 
-  modules: [
-    '@caeher/nuxt-gallery',
-    '@nuxt/image',
-    '@nuxt/content',
-    'nuxt-studio'
-  ],
+  modules: ['@caeher/nuxt-gallery', '@nuxt/image', '@nuxt/content', 'nuxt-studio', 'nuxt-auth-utils'],
 
   studio: {
-    route: '/_studio',
+    route: '/_admin',
     repository: {
       provider: 'github',
       owner: 'lest-day',
@@ -41,10 +36,6 @@ export default defineNuxtConfig({
   },
 
   nitro: {
-    preset: 'cloudflare_pages',
-    prerender: {
-      routes: ['/'],
-      crawlLinks: true
-    }
+    preset: 'cloudflare_pages'
   }
 })
