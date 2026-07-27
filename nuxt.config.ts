@@ -22,7 +22,7 @@ export default defineNuxtConfig({
   vite: {
     plugins: [tailwindcss()],
   },
-  modules: ['@caeher/nuxt-gallery', '@nuxt/image', '@nuxt/content', 'nuxt-studio', '@nuxtjs/color-mode'],
+  modules: ['@nuxt/image', '@nuxt/content', 'nuxt-studio', '@nuxtjs/color-mode'],
   studio: {
     repository: {
       provider: 'github',
