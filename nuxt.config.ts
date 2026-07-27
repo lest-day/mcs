@@ -25,6 +25,7 @@ export default defineNuxtConfig({
   modules: ['@caeher/nuxt-gallery', '@nuxt/image', '@nuxt/content', 'nuxt-studio'],
 
   studio: {
+    enabled: true,
     repository: {
       provider: 'github',
       owner: 'lest-day',
