@@ -1,0 +1,11 @@
+name = "mcs"
+pages_build_output_dir = "./dist"
+compatibility_date = "2025-07-15"
+
+[vars]
+NODE_VERSION = "26.5.0"
+
+[env.production]
+pages_build_output_dir = "./dist"
+[env.preview]
+pages_build_output_dir = "./dist"
