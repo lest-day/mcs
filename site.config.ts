@@ -35,7 +35,7 @@ export default {
       icon: 'fa-solid fa-server'
     },
     {
-      id: 'survival',
+      id: 'build',
       name: '生存与建造服',
       shortname: '生建服',
       ip: 'play.simpfun.cn',
@@ -47,7 +47,7 @@ export default {
       icon: 'fa-solid fa-cubes'
     },
     {
-      id: 'classic',
+      id: 'old',
       name: '怀旧服',
       ip: 'free-c1.tudouai.cn',
       port: 20005,
