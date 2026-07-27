@@ -48,7 +48,8 @@ export default defineNuxtConfig({
       crawlLinks: true
     },
     cloudflare: {
-      nodeCompat: true
+      nodeCompat: true,
+      deployConfig: true,
     }
   }
 })
