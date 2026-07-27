@@ -85,11 +85,10 @@
             </span>
           </div>
 
+          <!-- 使用动态计算获取安全的 Tailwind 样式类 -->
           <span :class="[
             'text-xs font-bold px-2.5 py-0.5 rounded-full shrink-0 border ml-2 transition-colors duration-300',
-            server.tagBg || 'bg-white/10',
-            server.tagText || 'text-gray-300',
-            server.tagBorder || 'border-white/20'
+            getTagClasses(server)
           ]">
             {{ server.tag }}
           </span>
@@ -224,7 +223,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, onUnmounted, watch } from "vue";
+import { ref, reactive, computed, onMounted, onUnmounted } from "vue";
 import siteConfig from "@@/site.config";
 
 /* ===================== 常量 ===================== */
@@ -234,16 +233,30 @@ const SERVER_STATE = {
   OFFLINE: "OFFLINE"
 };
 
+/* 预设标签样式集合（防 Tailwind Purge 静态扫描） */
+const TAG_PRESETS = {
+  emerald: "bg-emerald-500/10 text-emerald-300 border-emerald-500/20",
+  blue: "bg-blue-500/10 text-blue-300 border-blue-500/20",
+  amber: "bg-amber-500/10 text-amber-300 border-amber-500/20",
+  purple: "bg-purple-500/10 text-purple-300 border-purple-500/20",
+  rose: "bg-rose-500/10 text-rose-300 border-rose-500/20",
+  cyan: "bg-cyan-500/10 text-cyan-300 border-cyan-500/20",
+  sky: "bg-sky-500/10 text-sky-300 border-sky-500/20",
+  indigo: "bg-indigo-500/10 text-indigo-300 border-indigo-500/20",
+  orange: "bg-orange-500/10 text-orange-300 border-orange-500/20"
+};
+
 /* ===================== 服务器数据 ===================== */
-const serverList = ref(siteConfig.MC_SERVERS);
+const serverList = ref(siteConfig.MC_SERVERS || []);
 const currentServerIndex = ref(0);
 const currentServer = computed(
-  () => serverList.value[currentServerIndex.value]
+  () => serverList.value[currentServerIndex.value] || {}
 );
 
 /* ===================== 状态 ===================== */
 const serverStatuses = ref({});
 const avatarErrorMap = ref({});
+const lastServerStateMap = reactive({});
 
 const loading = ref(true);
 const justRefreshed = ref(false);
@@ -261,7 +274,9 @@ const isInitialLoading = computed(
 
 const fullServerAddress = computed(() => {
   const s = currentServer.value;
-  return s.port === 25565 ? s.ip : `${s.ip}:${s.port}`;
+  if (!s || !s.ip) return "127.0.0.1";
+  const port = Number(s.port);
+  return (!port || port === 25565) ? s.ip : `${s.ip}:${port}`;
 });
 
 const getServerState = (id) => {
@@ -272,11 +287,13 @@ const getServerState = (id) => {
       : SERVER_STATE.OFFLINE;
   }
 
+  const data = res.data || res.info || res;
   const online =
     res.online === true ||
+    data.online === true ||
     res.status === "success" ||
-    res.status === true ||
-    res.status === 200;
+    res.status === 200 ||
+    res.status === true;
 
   return online ? SERVER_STATE.ONLINE : SERVER_STATE.OFFLINE;
 };
@@ -285,22 +302,18 @@ const currentServerState = computed(() =>
   getServerState(currentServer.value.id)
 );
 
-const lastServerStateMap = reactive({});
-watch(currentServerState, (state) => {
-  if (state !== SERVER_STATE.LOADING) {
-    lastServerStateMap[currentServer.value.id] = state;
+const displayState = computed(() => {
+  const state = currentServerState.value;
+  if (state === SERVER_STATE.LOADING) {
+    return lastServerStateMap[currentServer.value.id] || SERVER_STATE.LOADING;
   }
+  return state;
 });
-
-const displayState = computed(() =>
-  currentServerState.value === SERVER_STATE.LOADING
-    ? lastServerStateMap[currentServer.value.id] || SERVER_STATE.LOADING
-    : currentServerState.value
-);
 
 const getInfo = (id) => {
   const res = serverStatuses.value[id];
-  return res?.info || res?.data || res || {};
+  if (!res) return {};
+  return res.data || res.info || res;
 };
 
 const infoData = computed(() => getInfo(currentServer.value.id));
@@ -330,15 +343,13 @@ const totalOnlinePlayers = computed(() =>
 );
 
 const lastTotalOnline = ref(0);
-watch(totalOnlinePlayers, (v) => {
-  if (v >= 0) lastTotalOnline.value = v;
-});
 
-const displayTotalOnline = computed(() =>
-  isInitialLoading.value
-    ? "--"
-    : totalOnlinePlayers.value ?? lastTotalOnline.value
-);
+const displayTotalOnline = computed(() => {
+  if (isInitialLoading.value) return "--";
+  const total = totalOnlinePlayers.value;
+  if (total > 0) lastTotalOnline.value = total;
+  return total ?? lastTotalOnline.value;
+});
 
 const onlineServerCount = computed(
   () =>
@@ -347,9 +358,11 @@ const onlineServerCount = computed(
     ).length
 );
 
-const fullVersionStr = computed(
-  () => String(infoData.value?.version?.name || "")
-);
+const fullVersionStr = computed(() => {
+  const ver = infoData.value?.version;
+  if (typeof ver === "string") return ver;
+  return String(ver?.name || "");
+});
 
 const softwareName = computed(() => {
   const str = fullVersionStr.value.trim();
@@ -364,7 +377,7 @@ const versionName = computed(() => {
   return str.replace(/^[^\d]*/, "").trim() || str;
 });
 
-/* ===================== 状态样式 ===================== */
+/* ===================== 状态与标签样式 ===================== */
 const statusPingColor = computed(() => ({
   "bg-amber-400": displayState.value === SERVER_STATE.LOADING,
   "bg-emerald-400": displayState.value === SERVER_STATE.ONLINE,
@@ -389,7 +402,7 @@ const statusLabel = computed(
       [SERVER_STATE.LOADING]: "CHECKING",
       [SERVER_STATE.ONLINE]: "ONLINE",
       [SERVER_STATE.OFFLINE]: "OFFLINE"
-    })[displayState.value]
+    })[displayState.value] || "OFFLINE"
 );
 
 const emptyTip = computed(() => {
@@ -399,6 +412,20 @@ const emptyTip = computed(() => {
     return "当前世界空无一人，快来成为第一位访客吧";
   return "";
 });
+
+/**
+ * 安全渲染 TAB 标签颜色
+ * 兼容 `tagColor: 'emerald'` 以及显式定义的 `tagBg` / `tagText` / `tagBorder`
+ */
+const getTagClasses = (server) => {
+  if (server.tagColor && TAG_PRESETS[server.tagColor]) {
+    return TAG_PRESETS[server.tagColor];
+  }
+  if (server.tagBg || server.tagText || server.tagBorder) {
+    return `${server.tagBg || "bg-white/10"} ${server.tagText || "text-gray-300"} ${server.tagBorder || "border-white/20"}`;
+  }
+  return "bg-emerald-500/10 text-emerald-300 border-emerald-500/20";
+};
 
 /* ===================== 工具方法 ===================== */
 const switchServer = (index) => {
@@ -426,9 +453,6 @@ const getPlayerKey = (player, index) => {
   return `${getPlayerName(player)}-${index}`;
 };
 
-/**
- * 优先从 siteConfig 读取头像 API 模板
- */
 const getAvatarUrl = (player) => {
   const uuid = getPlayerUuid(player);
   const name = getPlayerName(player);
@@ -469,8 +493,13 @@ const getAvatarBg = (index) => {
 /* ===================== 数据拉取 ===================== */
 const fetchAllServers = async () => {
   loading.value = true;
-  const statusApiTpl =
-    siteConfig.API_ENDPOINTS?.SERVER_STATUS;
+  const statusApiTpl = siteConfig.API_ENDPOINTS?.SERVER_STATUS;
+
+  if (!statusApiTpl) {
+    console.error("Missing API_ENDPOINTS.SERVER_STATUS in siteConfig");
+    loading.value = false;
+    return;
+  }
 
   try {
     const promises = serverList.value.map(async (server) => {
@@ -489,7 +518,11 @@ const fetchAllServers = async () => {
     const results = await Promise.allSettled(promises);
     results.forEach((item) => {
       if (item.status === "fulfilled") {
-        serverStatuses.value[item.value.id] = item.value.data;
+        const { id, data } = item.value;
+        serverStatuses.value[id] = data;
+
+        const state = getServerState(id);
+        lastServerStateMap[id] = state;
       }
     });
 
@@ -515,13 +548,17 @@ const lastUpdatedText = computed(() => {
 /* ===================== 复制地址 ===================== */
 const copyIp = async () => {
   try {
+    const textToCopy = fullServerAddress.value;
     if (navigator.clipboard && window.isSecureContext) {
-      await navigator.clipboard.writeText(fullServerAddress.value);
+      await navigator.clipboard.writeText(textToCopy);
     } else {
       const ta = document.createElement("textarea");
-      ta.value = fullServerAddress.value;
-      ta.style.cssText = "position:fixed;opacity:0";
+      ta.value = textToCopy;
+      ta.style.position = "fixed";
+      ta.style.left = "-9999px";
+      ta.style.top = "-9999px";
       document.body.appendChild(ta);
+      ta.focus();
       ta.select();
       document.execCommand("copy");
       document.body.removeChild(ta);
@@ -529,24 +566,35 @@ const copyIp = async () => {
     copied.value = true;
     clearTimeout(copyTimer);
     copyTimer = setTimeout(() => (copied.value = false), 2000);
-  } catch { }
+  } catch (err) {
+    console.error("复制失败:", err);
+  }
 };
 
 /* ===================== 生命周期 ===================== */
+const handleVisibilityChange = () => {
+  if (document.hidden) {
+    clearInterval(timer);
+  } else {
+    fetchAllServers();
+    startPolling();
+  }
+};
+
 const startPolling = () => {
+  clearInterval(timer);
   timer = setInterval(fetchAllServers, 60000);
 };
 
 onMounted(() => {
   fetchAllServers();
   startPolling();
-  document.addEventListener("visibilitychange", () => {
-    document.hidden ? clearInterval(timer) : startPolling();
-  });
+  document.addEventListener("visibilitychange", handleVisibilityChange);
 });
 
 onUnmounted(() => {
   clearInterval(timer);
   clearTimeout(copyTimer);
+  document.removeEventListener("visibilitychange", handleVisibilityChange);
 });
 </script>

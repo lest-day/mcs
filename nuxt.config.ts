@@ -46,6 +46,9 @@ export default defineNuxtConfig({
     prerender: {
       routes: ['/'],
       crawlLinks: true
+    },
+    cloudflare: {
+      nodeCompat: true
     }
   }
 })

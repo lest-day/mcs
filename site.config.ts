@@ -9,7 +9,6 @@ export default {
   // ===== API 接口配置 =====
   API_ENDPOINTS: {
     SERVER_STATUS: 'https://api.hanximeng.com/mc/?server_addr={ip}&server_port={port}',
-    SERVER_STATUS_BACKUP: "https://uapis.cn/api/mcserver?server={ip}:{port}",
     AVATAR_BY_UUID: 'https://mc-heads.net/avatar/{uuid}/36',
     AVATAR_BY_NAME: 'https://mc-heads.net/avatar/{name}/36'
   },
@@ -29,9 +28,7 @@ export default {
       ip: 'mc.r55770545.nyat.app',
       port: 61482,
       tag: '核心主服',
-      tagBg: 'bg-emerald-500/20',
-      tagText: 'text-emerald-300',
-      tagBorder: 'border-emerald-500/30',
+      tagColor: "emerald",
       icon: 'fa-solid fa-server'
     },
     {
@@ -41,9 +38,7 @@ export default {
       ip: 'play.simpfun.cn',
       port: 19532,
       tag: '建造体验',
-      tagBg: 'bg-blue-500/20',
-      tagText: 'text-blue-300',
-      tagBorder: 'border-blue-500/30',
+      tagColor: "blue",
       icon: 'fa-solid fa-cubes'
     },
     {
@@ -52,9 +47,7 @@ export default {
       ip: 'free-c1.tudouai.cn',
       port: 20005,
       tag: '经典复古',
-      tagBg: 'bg-amber-500/20',
-      tagText: 'text-amber-300',
-      tagBorder: 'border-amber-500/30',
+      tagColor: "amber",
       icon: 'fa-solid fa-clock-rotate-left'
     }
   ],

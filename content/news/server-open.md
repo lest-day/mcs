@@ -1,17 +1,11 @@
 ---
-title: 服务器正式开服公告
-date: 2026-07-26
-version: "1.20.4"
-important: true
+title: 1.21.x 主服生存二周目开启
+author: lestday233
+date: 2026-07-20
+description: 全新地形生成算法上线，新增加了多种生存玩法，快邀请你的同伴一起体验吧！
+isPinned: false
+serverId: main
+type: event
 ---
 
-## 各位冒险家大家好
-
-MC 服务器将于今晚 **20:00** 正式开启！
-
-目前已部署：
-- 领地系统
-- 经济系统
-- 副本玩法
-
-欢迎回家 🎮
+这里是正文...
