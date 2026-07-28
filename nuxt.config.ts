@@ -29,6 +29,7 @@ export default defineNuxtConfig({
       owner: 'lest-day',
       repo: 'mcs',
       branch: 'master',
+      rootDir: '/',
       private: false
     },
   },
