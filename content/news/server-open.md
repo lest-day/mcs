@@ -8,6 +8,6 @@ serverId: main
 type: event
 ---
 
-这里是正文...
+这里是正文
 
 114514
