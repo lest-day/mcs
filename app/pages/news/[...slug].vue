@@ -184,7 +184,7 @@ useHead({
   title: computed(() => page.value?.title || '资讯详情'),
   meta: [{
     name: 'description',
-    content: computed(() => page.value?.description || page.value?.summary || 'Minecraft 服务器新闻公告')
+    content: computed(() => page.value?.description || page.value?.summary || '清花MC服务器新闻公告')
   }]
 })
 </script>

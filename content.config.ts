@@ -7,30 +7,34 @@ export default defineContentConfig({
       source: 'news/*.md',
       schema: z.object({
         title: z
-          .string()
-          .min(1)
+          .string({ required_error: '标题不能为空' })
+          .min(1, '标题不能为空')
+          .max(120, '标题过长')
           .describe('标题'),
         description: z
           .string()
+          .max(100, '摘要不能超过 100 字')
           .optional()
           .describe('摘要'),
         date: z
           .string()
+          .regex(/^\d{4}-\d{2}-\d{2}$/, '日期格式应为 YYYY-MM-DD')
           .default(() => new Date().toISOString().split('T')[0])
           .describe('发布日期'),
-        server_id: z
-          .enum(['all', 'main', 'modded', 'creative', 'survival'])
+        serverId: z
+          .enum(['all', 'main', 'build', 'old'])
           .default('all')
           .describe('区服'),
-        news_type: z
+        type: z
           .enum(['announcement', 'update', 'event'])
           .default('announcement')
-          .describe('资讯分类'),
+          .describe('类别'),
         author: z
           .string()
+          .max(20)
           .default('管理员')
           .describe('发布者'),
-        is_pinned: z
+        isPinned: z
           .boolean()
           .default(false)
           .describe('置顶'),
