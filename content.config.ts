@@ -22,7 +22,7 @@ export default defineContentConfig({
           .default(() => new Date().toISOString().split('T')[0])
           .describe('发布日期'),
         serverId: z
-          .enum(['all', 'main', 'build', 'old'])
+          .enum(['all', 'main', 'mod', 'build', 'old'])
           .default('all')
           .describe('区服'),
         type: z

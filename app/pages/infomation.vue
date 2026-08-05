@@ -53,17 +53,17 @@
             class="w-10 h-10 rounded-xl bg-black/50 border border-white/10 flex items-center justify-center text-gray-300 hover:text-white hover:border-white/20 disabled:opacity-40 active:scale-95 transition-all shadow-sm shrink-0"
             title="刷新数据">
             <i :class="loading
-                ? 'fa-solid fa-spinner animate-spin text-gray-200 text-sm'
-                : justRefreshed
-                  ? 'fa-solid fa-check text-emerald-400 text-sm'
-                  : 'fa-solid fa-rotate text-sm'
+              ? 'fa-solid fa-spinner animate-spin text-gray-200 text-sm'
+              : justRefreshed
+                ? 'fa-solid fa-check text-emerald-400 text-sm'
+                : 'fa-solid fa-rotate text-sm'
               "></i>
           </button>
         </div>
       </header>
 
       <!-- Tabs -->
-      <section class="grid grid-cols-1 md:grid-cols-3 gap-3.5 w-full">
+      <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3.5 w-full">
         <div v-for="(server, index) in serverList" :key="server.id" @click="switchServer(index)" :class="[
           'cursor-pointer relative overflow-hidden rounded-2xl p-4 border transition-all duration-300 backdrop-blur-xl flex items-center justify-between group select-none',
           currentServerIndex === index
@@ -78,14 +78,13 @@
             ]"></i>
 
             <span :class="currentServerIndex === index
-                ? 'font-bold text-base truncate text-white'
-                : 'font-bold text-base truncate text-gray-400 group-hover:text-white'
+              ? 'font-bold text-base truncate text-white'
+              : 'font-bold text-base truncate text-gray-400 group-hover:text-white'
               ">
-              {{ server.name }}
+              {{ server.shortname || server.name }}
             </span>
           </div>
 
-          <!-- 使用动态计算获取安全的 Tailwind 样式类 -->
           <span :class="[
             'text-xs font-bold px-2.5 py-0.5 rounded-full shrink-0 border ml-2 transition-colors duration-300',
             getTagClasses(server)
@@ -131,7 +130,7 @@
               <i class="fa-solid fa-box-open text-orange-400 text-xs"></i>
               <span class="text-gray-400 text-xs uppercase font-bold">CORE</span>
               <span class="font-bold font-mono text-gray-200 text-xs truncate max-w-[120px]" :title="softwareName">
-                {{ displayState === SERVER_STATE.ONLINE ? softwareName : "N/A" }}
+                {{ hasCustomCore || displayState === SERVER_STATE.ONLINE ? softwareName : "N/A" }}
               </span>
             </div>
 
@@ -139,7 +138,7 @@
               <i class="fa-solid fa-code-branch text-blue-400 text-xs"></i>
               <span class="text-gray-400 text-xs uppercase font-bold">VERSION</span>
               <span class="font-bold font-mono text-gray-200 text-xs truncate max-w-[120px]" :title="versionName">
-                {{ displayState === SERVER_STATE.ONLINE ? versionName : "N/A" }}
+                {{ hasCustomVersion || displayState === SERVER_STATE.ONLINE ? versionName : "N/A" }}
               </span>
             </div>
           </div>
@@ -364,7 +363,21 @@ const fullVersionStr = computed(() => {
   return String(ver?.name || "");
 });
 
+/* 是否在 config 中显式配置了 core / software / version */
+const hasCustomCore = computed(() =>
+  Boolean(currentServer.value?.core || currentServer.value?.software)
+);
+
+const hasCustomVersion = computed(() =>
+  Boolean(currentServer.value?.version)
+);
+
 const softwareName = computed(() => {
+  // 1. 优先判定 config 设置的 core 或 software
+  const manualCore = currentServer.value?.core || currentServer.value?.software;
+  if (manualCore) return String(manualCore);
+
+  // 2. 回退使用 API 字符串解析
   const str = fullVersionStr.value.trim();
   if (!str) return "Minecraft";
   const m = str.match(/^([a-zA-Z][\w\-]*)/);
@@ -372,6 +385,12 @@ const softwareName = computed(() => {
 });
 
 const versionName = computed(() => {
+  // 1. 优先判定 config 设置的 version
+  if (currentServer.value?.version) {
+    return String(currentServer.value.version);
+  }
+
+  // 2. 回退使用 API 字符串解析
   const str = fullVersionStr.value.trim();
   if (!str) return "1.21.x";
   return str.replace(/^[^\d]*/, "").trim() || str;
