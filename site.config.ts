@@ -34,12 +34,12 @@ export default {
       icon: 'fa-solid fa-globe'
     },
     {
-      id: 'mod',
+      id: 'mods',
       name: '整合包服',
       shortname: '模组服',
       ip: 'fun.r55770545.nyat.app',
       port: 29568,
-      core: "NeoForge",
+      core: "Youer",
       version: "1.21.1",
       tag: '趣味模组',
       tagColor: 'purple',
