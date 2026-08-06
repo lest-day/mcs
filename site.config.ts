@@ -34,7 +34,7 @@ export default {
       icon: 'fa-solid fa-globe'
     },
     {
-      id: 'mods',
+      id: 'mod',
       name: '整合包服',
       shortname: '模组服',
       ip: 'fun.r55770545.nyat.app',
